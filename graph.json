@@ -364,52 +364,10 @@
       "_introduces": "method_ia3"
     },
     {
-      "arxiv_id": "f7ca478e84103492ff5848e75762a627d6127eae",
-      "title": "Calibrating and Rotating: A Unified Framework for Weight Conditioning in PEFT",
-      "arxiv_v1_date": null,
-      "year": 2025,
-      "venue": "AAAI Conference on Artificial Intelligence"
-    },
-    {
-      "arxiv_id": "dff9b29918369f2ce7c06d13258ffad5c644788a",
-      "title": "ComPEFT: Compression for Communicating Parameter Efficient Updates via Sparsification and Quantization",
-      "arxiv_v1_date": null,
-      "year": 2023,
-      "venue": "Trans. Mach. Learn. Res."
-    },
-    {
       "arxiv_id": "9aef980ac6e6a1cbc470362a042b75cfb50e2e48",
       "title": "Learning Rate Matters: Vanilla LoRA May Suffice for LLM Fine-tuning",
       "arxiv_v1_date": null,
       "year": 2026,
-      "venue": "arXiv.org"
-    },
-    {
-      "arxiv_id": "ebe9682c634c111b78c5d6cb30cb8703902a59db",
-      "title": "Adaptive and Fine-grained Module-wise Expert Pruning for Efficient LoRA-MoE Fine-Tuning",
-      "arxiv_v1_date": null,
-      "year": 2026,
-      "venue": "arXiv.org"
-    },
-    {
-      "arxiv_id": "f2e78a574925486d1f13440f55688bcffde80101",
-      "title": "Parameter-Efficient Sparsity Crafting from Dense to Mixture-of-Experts for Instruction Tuning on General Tasks",
-      "arxiv_v1_date": null,
-      "year": 2024,
-      "venue": "Conference on Empirical Methods in Natural Language Processing"
-    },
-    {
-      "arxiv_id": "6d02b5bdb7f9eff8467e697bb7c470901c1f39b9",
-      "title": "Train Less, Infer Faster: Efficient Model Finetuning and Compression via Structured Sparsity",
-      "arxiv_v1_date": null,
-      "year": 2026,
-      "venue": "arXiv.org"
-    },
-    {
-      "arxiv_id": "060cef532fa9074b54800a52754bdfb4b3fe0b0e",
-      "title": "Towards Optimal Adapter Placement for Efficient Transfer Learning",
-      "arxiv_v1_date": null,
-      "year": 2024,
       "venue": "arXiv.org"
     },
     {
@@ -930,16 +888,6 @@
         ]
       },
       {
-        "from_method": "method_prompt_tuning",
-        "to_method": "method_prefix_tuning",
-        "evidence_paper": "2104.08691",
-        "note": "Prefix Tuning baseline in Fig 4 / main SuperGLUE comparison",
-        "_untracked_baselines": [
-          "model tuning (full FT)",
-          "WARP"
-        ]
-      },
-      {
         "from_method": "method_bitfit",
         "to_method": "method_adapters",
         "evidence_paper": "2106.10199",
@@ -1303,32 +1251,8 @@
     ],
     "APPLIES": [
       {
-        "from_paper": "f7ca478e84103492ff5848e75762a627d6127eae",
-        "to_method": "method_lora"
-      },
-      {
-        "from_paper": "dff9b29918369f2ce7c06d13258ffad5c644788a",
-        "to_method": "method_lora"
-      },
-      {
         "from_paper": "9aef980ac6e6a1cbc470362a042b75cfb50e2e48",
         "to_method": "method_lora"
-      },
-      {
-        "from_paper": "ebe9682c634c111b78c5d6cb30cb8703902a59db",
-        "to_method": "method_lora"
-      },
-      {
-        "from_paper": "f2e78a574925486d1f13440f55688bcffde80101",
-        "to_method": "method_lora"
-      },
-      {
-        "from_paper": "6d02b5bdb7f9eff8467e697bb7c470901c1f39b9",
-        "to_method": "method_lora"
-      },
-      {
-        "from_paper": "060cef532fa9074b54800a52754bdfb4b3fe0b0e",
-        "to_method": "method_adapters"
       },
       {
         "from_paper": "f4976fab1292e714556abf8e142f023b5d696359",

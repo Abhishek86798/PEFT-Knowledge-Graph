@@ -91,12 +91,10 @@
     "venue": "AAAI Conference on Artificial Intelligence",
     "abstract": "Parameter-Efficient Fine-Tuning (PEFT) methods are crucial for adapting large pre-trained models. Among these, LoRA is considered a foundational approach. Building on this, the influential DoRA method enhances performance by decomposing weight updates into magnitude and direction. However, its underlying mechanism remains unclear, and it introduces significant computational overhead. In this work, we first identify that DoRA's success stems from its capacity to increase the singular value entropy of the weight update matrix, which promotes a more uniform update distribution akin to full fine-tuning. We then reformulate DoRA into a mathematically equivalent and more efficient matrix form, revealing it as a learnable weight conditioning method. Based on this insight, we propose a unified framework for designing advanced PEFT methods by exploring two orthogonal dimensions: the architectural placement and the transformation type of the conditioning matrix. Within this framework, we introduce two novel methods: (1) Pre-Diag, which applies a diagonal conditioning matrix before the LoRA update to efficiently calibrate the pre-trained weights, thereby enhancing performance while reducing training time; and (2) Skewed Orthogonal Rotation Adaptation (SORA), which employs a parameter-efficient orthogonal rotation to perform a more powerful, norm-preserving transformation of the feature space. Extensive experiments on natural language understanding and generation tasks demonstrate that our proposed methods achieve superior performance and efficiency compared to both LoRA and DoRA.",
     "_score": 8,
-    "keep": true,
-    "applies_methods": [
-      "method_lora"
-    ],
-    "confidence": 0.5,
-    "reason": "Built on LoRA/DoRA (DoRA is itself a LoRA variant); leans toward variant territory.",
+    "keep": false,
+    "applies_methods": [],
+    "confidence": 0.8,
+    "reason": "FLIPPED TO REJECT on manual review: Introduces Pre-Diag + SORA (new named methods with own update formulas); competing methods in a comparison table, not LoRA run unmodified.",
     "evidence": "'LoRA is considered a foundational approach ... DoRA'"
   },
   {
@@ -107,12 +105,10 @@
     "venue": "Trans. Mach. Learn. Res.",
     "abstract": "Parameter-efficient fine-tuning (PEFT) techniques make it possible to efficiently adapt a language model to create\"expert\"models that specialize to new tasks or domains. Recent techniques in model merging and compositional generalization leverage these expert models by dynamically composing modules to improve zero/few-shot generalization. Despite the efficiency of PEFT methods, the size of expert models can make it onerous to retrieve expert models per query over high-latency networks like the Internet or serve multiple experts on a single GPU. To address these issues, we present ComPEFT, a novel method for compressing fine-tuning residuals (task vectors) of PEFT based models. ComPEFT employs sparsification and ternary quantization to reduce the size of the PEFT module without performing any additional retraining while preserving or enhancing model performance. In extensive evaluation across T5, T0, and LLaMA-based models with 200M - 65B parameters, ComPEFT achieves compression ratios of 8x - 50x. In particular, we show that ComPEFT improves with scale - stronger models exhibit higher compressibility and better performance. For example, we show that ComPEFT applied to LLaMA outperforms QLoRA by 4.16% on MMLU with a storage size reduction of up to 26x. In addition, we show that the compressed experts produced by ComPEFT maintain few-shot compositional generalization capabilities, facilitate efficient communication and computation, and exhibit enhanced performance when merged. Lastly, we provide an analysis of different method components, compare it with other PEFT methods, and test ComPEFT's efficacy for compressing the residual of full-finetuning. Our code is available at https://github.com/prateeky2806/compeft.",
     "_score": 7,
-    "keep": true,
-    "applies_methods": [
-      "method_lora"
-    ],
-    "confidence": 0.5,
-    "reason": "Compresses LoRA update vectors — operates ON LoRA outputs; arguably tooling, not application.",
+    "keep": false,
+    "applies_methods": [],
+    "confidence": 0.8,
+    "reason": "FLIPPED TO REJECT on manual review: Operates post-hoc on the trained task vector (sparsify + ternary-quantize); never runs LoRA as object of study. Tooling, not application.",
     "evidence": "'compositional generalization leverage these expert models'"
   },
   {
@@ -153,12 +149,10 @@
     "venue": "arXiv.org",
     "abstract": "LoRA-MoE has emerged as an effective paradigm for parameter-efficient fine-tuning, combining the low training cost of LoRA with the increased adaptation capacity of Mixture-of-Experts (MoE). However, existing LoRA-MoE frameworks typically adopt a fixed and uniform expert configuration across heterogeneous Transformer modules (\\eg, attention query/key projections and MLP gating networks), ignoring their distinct functional roles and capacity requirements. This design leads to localized over-provisioning, redundant trainable parameters, and unnecessary optimizer-state overhead. Moreover, prior methods enforce load balancing among experts throughout training. Although beneficial in the early stage, this constraint becomes restrictive once routing patterns stabilize, limiting expert specialization on downstream tasks. In this paper, we propose DMEP, a novel LoRA-MoE fine-tuning framework based on Dynamic Module-wise Expert Pruning. DMEP tracks expert utilization during training and physically removes low-utility experts on a per-module basis, yielding a more compact expert structure tailored to different modules. The pruned model then continues training without the load-balancing constraint, freeing the remaining experts to focus entirely on the downstream task and develop specialized expertise. By jointly adapting module-wise expert capacity and eliminating unnecessary balancing, DMEP improves both parameter efficiency and training efficiency. Extensive experiments on multiple reasoning benchmarks show that DMEP reduces trainable parameters by 35\\%--43\\% and improves training throughput by about 10\\%, while maintaining or surpassing the downstream reasoning accuracy of uniform LoRA-MoE baselines.",
     "_score": 26,
-    "keep": true,
-    "applies_methods": [
-      "method_lora"
-    ],
-    "confidence": 0.55,
-    "reason": "LoRA-MoE: pruning scheme wraps LoRA; LoRA's low-rank update itself is unmodified.",
+    "keep": false,
+    "applies_methods": [],
+    "confidence": 0.8,
+    "reason": "FLIPPED TO REJECT on manual review: Proposes DMEP, a new LoRA-MoE framework with dynamic expert pruning; structural modification (same class as SiRA/ReMix).",
     "evidence": "'combining the low training cost of LoRA with ... MoE'"
   },
   {
@@ -169,12 +163,10 @@
     "venue": "Conference on Empirical Methods in Natural Language Processing",
     "abstract": "Large language models (LLMs) have demonstrated considerable proficiency in general natural language processing (NLP) tasks. Instruction tuning, a successful paradigm, enhances the ability of LLMs to follow natural language instructions and exhibit robust generalization across general tasks. However, these models often encounter performance limitations across multiple tasks due to constrained model capacity. Expanding this capacity during the instruction tuning phase poses significant challenges. To address this issue, we introduce parameter-efficient sparsity crafting (PESC), which crafts dense models into sparse models using the mixture-of-experts (MoE) architecture. PESC integrates adapters into the MoE layers of sparse models, differentiating experts without altering the individual weights within these layers. This method significantly reduces computational costs and GPU memory requirements, facilitating model capacity expansion through a minimal parameter increase when guaranteeing the quality of approximation in function space compared to original sparse upcycling. Our empirical evaluation demonstrates the effectiveness of the PESC method. Using PESC during instruction tuning, our best sparse model outperforms other sparse and dense models and exhibits superior general capabilities compared to GPT-3.5.Our code is available at https://github.com/wuhy68/Parameter-Efficient-MoE.",
     "_score": 16,
-    "keep": true,
-    "applies_methods": [
-      "method_lora"
-    ],
-    "confidence": 0.55,
-    "reason": "MoE-conversion method; LoRA used within — unclear if LoRA is the applied method or incidental.",
+    "keep": false,
+    "applies_methods": [],
+    "confidence": 0.8,
+    "reason": "FLIPPED TO REJECT on manual review: Introduces PESC, a new architecture integrating adapters into MoE layers; not adapters run unmodified.",
     "evidence": "'Instruction tuning ... sparsity crafting'"
   },
   {
@@ -185,12 +177,10 @@
     "venue": "arXiv.org",
     "abstract": "Fully finetuning foundation language models (LMs) with billions of parameters is often impractical due to high computational costs, memory requirements, and the risk of overfitting. Although methods like low-rank adapters help address these challenges by adding small trainable modules to the frozen LM, they also increase memory usage and do not reduce inference latency. We uncover an intriguing phenomenon: sparsifying specific model rows and columns enables efficient task adaptation without requiring weight tuning. We propose a scheme for effective finetuning via sparsification using training stochastic gates, which requires minimal trainable parameters, reduces inference time, and removes 20--40\\% of model parameters without significant accuracy loss. Empirical results show it outperforms recent finetuning baselines in efficiency and performance. Additionally, we provide theoretical guarantees for the convergence of this stochastic gating process, and show that our method admits a simpler and better-conditioned optimization landscape compared to LoRA. Our results highlight sparsity as a compelling mechanism for task-specific adaptation in LMs.",
     "_score": 8,
-    "keep": true,
-    "applies_methods": [
-      "method_lora"
-    ],
-    "confidence": 0.55,
-    "reason": "Uses 'low-rank adapters'; abstract doesn't confirm it's LoRA-unmodified vs a bespoke variant.",
+    "keep": false,
+    "applies_methods": [],
+    "confidence": 0.8,
+    "reason": "FLIPPED TO REJECT on manual review: Proposes FineGates (stochastic-gate sparsification), benchmarked AGAINST LoRA as a competing baseline; not an application of LoRA.",
     "evidence": "'methods like low-rank adapters help address'"
   },
   {
@@ -201,12 +191,10 @@
     "venue": "arXiv.org",
     "abstract": "Parameter-efficient transfer learning (PETL) aims to adapt pre-trained models to new downstream tasks while minimizing the number of fine-tuned parameters. Adapters, a popular approach in PETL, inject additional capacity into existing networks by incorporating low-rank projections, achieving performance comparable to full fine-tuning with significantly fewer parameters. This paper investigates the relationship between the placement of an adapter and its performance. We observe that adapter location within a network significantly impacts its effectiveness, and that the optimal placement is task-dependent. To exploit this observation, we introduce an extended search space of adapter connections, including long-range and recurrent adapters. We demonstrate that even randomly selected adapter placements from this expanded space yield improved results, and that high-performing placements often correlate with high gradient rank. Our findings reveal that a small number of strategically placed adapters can match or exceed the performance of the common baseline of adding adapters in every block, opening a new avenue for research into optimal adapter placement strategies.",
     "_score": 18,
-    "keep": true,
-    "applies_methods": [
-      "method_adapters"
-    ],
-    "confidence": 0.58,
-    "reason": "Adapter placement study; adapters run unmodified but 'placement' could read as modification.",
+    "keep": false,
+    "applies_methods": [],
+    "confidence": 0.8,
+    "reason": "FLIPPED TO REJECT on manual review: Introduces an extended search space with long-range/recurrent adapter connections = new connectivity design, not the vanilla adapter run unmodified.",
     "evidence": "'Adapters ... inject additional capacity'"
   },
   {

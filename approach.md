@@ -134,6 +134,20 @@ related work or discussion. That strictness is what stops it from collapsing bac
 into a citation graph — "mentioned somewhere" is exactly what I was trying not to
 build.
 
+That strictness caught a real error when I verified it. I went back through all 13
+introducing papers and checked every COMPARED_AGAINST and EVALUATED_ON edge against
+the actual results table it claims. One failed: I had recorded Prompt-Tuning as
+COMPARED_AGAINST Prefix-Tuning, but Lester et al. only discuss prefix-tuning in
+prose (Section 4) and a parameter-count figure — there is no quantitative baseline
+row, so the edge fails my own test. I removed it (COMPARED_AGAINST went from 30 to
+29). The other edges held. A separate, milder point surfaced in the same pass:
+three EVALUATED_ON edges are backed by a *figure* rather than a table (Adapters on
+SQuAD, Prompt-Tuning on SuperGLUE, (IA)³ on the T0 held-out tasks). My test says
+"main results table"; I read that as "main results presentation" and kept them,
+because dropping real main-body quantitative results on a figure-vs-table
+technicality would make the graph less accurate. Those three are the edges most
+open to challenge, and I'd rather name them than bury them.
+
 ---
 
 ## The edge I demoted: combined_techniques
