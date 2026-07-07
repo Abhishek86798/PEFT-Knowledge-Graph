@@ -5,6 +5,10 @@ a reasoning engine that positions a **new, unseen** PEFT idea against it —
 returning the closest existing method, a suggested reading order, what has
 already been tried, and a novelty flag.
 
+- **See it first — no setup:** open [`graph.html`](graph.html) in any browser. It's a
+  self-contained interactive graph (works offline): the 13 methods and 18 benchmarks
+  are shown by default; click a method to reveal its application papers and a fact
+  panel (mechanism, benchmarks, lineage), and click any node to open the real paper.
 - **What it models & why:** see [`approach.md`](approach.md)
 - **The normative schema (every node/edge passes a test):** see [`schema.md`](schema.md)
 
@@ -128,6 +132,7 @@ both, which the `EXTENDS` DAG represents directly.
 ```
 .
 ├── graph.json                        # ⭐ THE deliverable — the knowledge graph
+├── graph.html                        # ⭐ self-contained interactive visualization (open in browser)
 ├── schema.md                         # normative schema: definitions as falsifiable tests
 ├── approach.md                       # design rationale & decision narrative
 ├── README.md                         # this file
@@ -135,9 +140,11 @@ both, which the `EXTENDS` DAG represents directly.
 ├── src/
 │   ├── suggest_method.py             # ⭐ reasoning engine — positions a new PEFT idea
 │   ├── validate_graph.py             # executable validation suite (schema.md §4)
+│   ├── render_html.py                # regenerates graph.html from graph.json
 │   ├── render_mermaid.py             # regenerates the taxonomy diagram from graph.json
 │   ├── fetch_papers.py               # corpus fetcher (Semantic Scholar batch endpoint)
-│   └── tag_applies.py                # builds/merges the APPLIES review worksheet
+│   ├── tag_applies.py                # builds/merges the APPLIES review worksheet
+│   └── vendor/vis-network.min.js     # inlined into graph.html so it works offline
 └── data/
     ├── papers_candidates.json        # raw fetch output (provenance)
     └── papers_applies_review.json    # 200 candidates + keep/reject, reason/confidence/evidence
