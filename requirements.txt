@@ -1,0 +1,4 @@
+# Only the corpus fetcher needs a third-party package.
+# The reasoning engine (suggest_method.py) and validator (validate_graph.py)
+# use the standard library only.
+requests>=2.31

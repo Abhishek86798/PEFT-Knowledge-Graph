@@ -1,0 +1,1711 @@
+{
+  "_schema": "PEFT Knowledge Graph — conforms to schema.md. Nodes: Method, Paper, Benchmark. Edges: INTRODUCES, EXTENDS, COMPARED_AGAINST, EVALUATED_ON, APPLIES.",
+  "_status": {
+    "3.1_methods_introduces_extends": "COMPLETE (transcribed from schema §2)",
+    "3.2_compared_against_evaluated_on": "COMPLETE (13 papers, results tables read via ar5iv)",
+    "3.3_applies": "COMPLETE"
+  },
+  "methods": [
+    {
+      "slug": "method_adapters",
+      "name": "Adapters",
+      "family": "additive-adapter",
+      "is_family_root": true,
+      "introduced_date": "2019-02-02",
+      "combined_techniques": [],
+      "mechanism": "Inserts small trainable bottleneck modules (down-project, nonlinearity, up-project) between frozen transformer sub-layers.",
+      "signature_terms": [
+        "adapter",
+        "bottleneck",
+        "module",
+        "insert",
+        "down-project",
+        "up-project",
+        "serial",
+        "residual"
+      ]
+    },
+    {
+      "slug": "method_pfeiffer_adapters",
+      "name": "Pfeiffer Adapters",
+      "family": "additive-adapter",
+      "is_family_root": false,
+      "introduced_date": "2020-05-01",
+      "combined_techniques": [],
+      "mechanism": "Adapter modules placed at a single (post-FFN) position per layer and composed across tasks via a fusion layer.",
+      "signature_terms": [
+        "adapter",
+        "fusion",
+        "single",
+        "placement",
+        "composition",
+        "multi-task",
+        "post-ffn"
+      ]
+    },
+    {
+      "slug": "method_compacter",
+      "name": "Compacter",
+      "family": "additive-adapter",
+      "is_family_root": false,
+      "introduced_date": "2021-06-08",
+      "combined_techniques": [
+        "hypercomplex-parameterization"
+      ],
+      "mechanism": "Adapters whose weight matrices are Kronecker products of shared low-rank / hypercomplex factors, cutting adapter parameters.",
+      "signature_terms": [
+        "kronecker",
+        "hypercomplex",
+        "phm",
+        "shared",
+        "low-rank",
+        "adapter",
+        "parameterized",
+        "factor"
+      ]
+    },
+    {
+      "slug": "method_prefix_tuning",
+      "name": "Prefix-Tuning",
+      "family": "soft-prompt",
+      "is_family_root": true,
+      "introduced_date": "2021-01-01",
+      "combined_techniques": [],
+      "mechanism": "Prepends trainable continuous key/value prefix vectors to the attention of every transformer layer; the model stays frozen.",
+      "signature_terms": [
+        "prefix",
+        "key",
+        "value",
+        "attention",
+        "every layer",
+        "deep",
+        "continuous",
+        "prepend",
+        "virtual token"
+      ]
+    },
+    {
+      "slug": "method_prompt_tuning",
+      "name": "Prompt-Tuning",
+      "family": "soft-prompt",
+      "is_family_root": false,
+      "introduced_date": "2021-04-18",
+      "combined_techniques": [],
+      "mechanism": "Prepends trainable soft-prompt embeddings at the input layer only; a strict input-layer special case of prefix tuning.",
+      "signature_terms": [
+        "prompt",
+        "soft prompt",
+        "input",
+        "embedding",
+        "prepend",
+        "continuous",
+        "input-layer",
+        "virtual token"
+      ]
+    },
+    {
+      "slug": "method_ptuning",
+      "name": "P-Tuning",
+      "family": "soft-prompt",
+      "is_family_root": true,
+      "introduced_date": "2021-03-18",
+      "combined_techniques": [],
+      "mechanism": "Continuous prompt embeddings produced by a small prompt encoder (LSTM/MLP) inserted into the input; targets NLU.",
+      "signature_terms": [
+        "prompt",
+        "encoder",
+        "lstm",
+        "mlp",
+        "continuous",
+        "input",
+        "reparameterize",
+        "nlu"
+      ]
+    },
+    {
+      "slug": "method_ptuning_v2",
+      "name": "P-Tuning v2",
+      "family": "soft-prompt",
+      "is_family_root": false,
+      "introduced_date": "2021-10-14",
+      "combined_techniques": [],
+      "mechanism": "Deep continuous prompts applied at every layer (prefix-style) for NLU across scales; merges P-Tuning framing with deep prefixes.",
+      "signature_terms": [
+        "prompt",
+        "deep",
+        "every layer",
+        "prefix",
+        "nlu",
+        "scales",
+        "continuous"
+      ]
+    },
+    {
+      "slug": "method_lora",
+      "name": "LoRA",
+      "family": "reparameterization",
+      "is_family_root": true,
+      "introduced_date": "2021-06-17",
+      "combined_techniques": [],
+      "mechanism": "Adds a trainable low-rank update B*A to frozen weight matrices (W + BA); mergeable at inference, no extra latency.",
+      "signature_terms": [
+        "low-rank",
+        "lora",
+        "rank",
+        "decomposition",
+        "mergeable",
+        "reparameterization"
+      ]
+    },
+    {
+      "slug": "method_adalora",
+      "name": "AdaLoRA",
+      "family": "reparameterization",
+      "is_family_root": false,
+      "introduced_date": "2023-03-18",
+      "combined_techniques": [],
+      "mechanism": "LoRA with adaptive rank: allocates the rank budget across weight matrices via SVD-based importance pruning of singular values.",
+      "signature_terms": [
+        "adaptive",
+        "rank",
+        "budget",
+        "svd",
+        "singular",
+        "importance",
+        "prune",
+        "allocation",
+        "low-rank"
+      ]
+    },
+    {
+      "slug": "method_qlora",
+      "name": "QLoRA",
+      "family": "reparameterization",
+      "is_family_root": false,
+      "introduced_date": "2023-05-23",
+      "combined_techniques": [
+        "quantization"
+      ],
+      "mechanism": "LoRA adapters trained on top of a 4-bit NF4-quantized frozen base with double quantization and paged optimizers.",
+      "signature_terms": [
+        "quantiz",
+        "4-bit",
+        "nf4",
+        "int8",
+        "memory",
+        "double quantization",
+        "paged",
+        "low-rank",
+        "lora"
+      ]
+    },
+    {
+      "slug": "method_vera",
+      "name": "VeRA",
+      "family": "reparameterization",
+      "is_family_root": false,
+      "introduced_date": "2023-10-17",
+      "combined_techniques": [],
+      "mechanism": "Freezes a pair of shared random low-rank matrices and trains only small per-layer scaling vectors on top of them.",
+      "signature_terms": [
+        "random",
+        "shared",
+        "frozen",
+        "scaling vector",
+        "low-rank",
+        "vector",
+        "reuse",
+        "tiny"
+      ]
+    },
+    {
+      "slug": "method_bitfit",
+      "name": "BitFit",
+      "family": "selective",
+      "is_family_root": true,
+      "introduced_date": "2021-06-18",
+      "combined_techniques": [],
+      "mechanism": "Trains only the existing bias terms of the model; injects no new parameters at all.",
+      "signature_terms": [
+        "bias",
+        "bias-only",
+        "selective",
+        "subset",
+        "existing parameters",
+        "no new parameters",
+        "sparse"
+      ]
+    },
+    {
+      "slug": "method_ia3",
+      "name": "(IA)^3",
+      "family": "multiplicative",
+      "is_family_root": true,
+      "introduced_date": "2022-05-11",
+      "combined_techniques": [],
+      "mechanism": "Learns element-wise rescaling vectors that multiply the keys, values, and FFN activations; multiplicative, not additive.",
+      "signature_terms": [
+        "rescal",
+        "multiplicative",
+        "element-wise",
+        "scaling",
+        "activation",
+        "key",
+        "value",
+        "ffn",
+        "vector",
+        "gate"
+      ]
+    }
+  ],
+  "papers": [
+    {
+      "arxiv_id": "1902.00751",
+      "title": "Parameter-Efficient Transfer Learning for NLP",
+      "arxiv_v1_date": "2019-02-02",
+      "year": 2019,
+      "venue": "ICML 2019",
+      "_introduces": "method_adapters"
+    },
+    {
+      "arxiv_id": "2005.00247",
+      "title": "AdapterFusion: Non-Destructive Task Composition for Transfer Learning",
+      "arxiv_v1_date": "2020-05-01",
+      "year": 2020,
+      "venue": "EACL 2021",
+      "_introduces": "method_pfeiffer_adapters"
+    },
+    {
+      "arxiv_id": "2106.04647",
+      "title": "Compacter: Efficient Low-Rank Hypercomplex Adapter Layers",
+      "arxiv_v1_date": "2021-06-08",
+      "year": 2021,
+      "venue": "NeurIPS 2021",
+      "_introduces": "method_compacter"
+    },
+    {
+      "arxiv_id": "2101.00190",
+      "title": "Prefix-Tuning: Optimizing Continuous Prompts for Generation",
+      "arxiv_v1_date": "2021-01-01",
+      "year": 2021,
+      "venue": "ACL 2021",
+      "_introduces": "method_prefix_tuning"
+    },
+    {
+      "arxiv_id": "2104.08691",
+      "title": "The Power of Scale for Parameter-Efficient Prompt Tuning",
+      "arxiv_v1_date": "2021-04-18",
+      "year": 2021,
+      "venue": "EMNLP 2021",
+      "_introduces": "method_prompt_tuning"
+    },
+    {
+      "arxiv_id": "2103.10385",
+      "title": "GPT Understands, Too (P-Tuning)",
+      "arxiv_v1_date": "2021-03-18",
+      "year": 2021,
+      "venue": "arXiv",
+      "_introduces": "method_ptuning"
+    },
+    {
+      "arxiv_id": "2110.07602",
+      "title": "P-Tuning v2: Prompt Tuning Can Be Comparable to Fine-tuning Universally Across Scales and Tasks",
+      "arxiv_v1_date": "2021-10-14",
+      "year": 2021,
+      "venue": "ACL 2022",
+      "_introduces": "method_ptuning_v2"
+    },
+    {
+      "arxiv_id": "2106.09685",
+      "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+      "arxiv_v1_date": "2021-06-17",
+      "year": 2021,
+      "venue": "ICLR 2022",
+      "_introduces": "method_lora"
+    },
+    {
+      "arxiv_id": "2303.10512",
+      "title": "AdaLoRA: Adaptive Budget Allocation for Parameter-Efficient Fine-Tuning",
+      "arxiv_v1_date": "2023-03-18",
+      "year": 2023,
+      "venue": "ICLR 2023",
+      "_introduces": "method_adalora"
+    },
+    {
+      "arxiv_id": "2305.14314",
+      "title": "QLoRA: Efficient Finetuning of Quantized LLMs",
+      "arxiv_v1_date": "2023-05-23",
+      "year": 2023,
+      "venue": "NeurIPS 2023",
+      "_introduces": "method_qlora"
+    },
+    {
+      "arxiv_id": "2310.11454",
+      "title": "VeRA: Vector-based Random Matrix Adaptation",
+      "arxiv_v1_date": "2023-10-17",
+      "year": 2023,
+      "venue": "ICLR 2024",
+      "_introduces": "method_vera"
+    },
+    {
+      "arxiv_id": "2106.10199",
+      "title": "BitFit: Simple Parameter-efficient Fine-tuning for Transformer-based Masked Language-models",
+      "arxiv_v1_date": "2021-06-18",
+      "year": 2021,
+      "venue": "ACL 2022",
+      "_introduces": "method_bitfit"
+    },
+    {
+      "arxiv_id": "2205.05638",
+      "title": "Few-Shot Parameter-Efficient Fine-Tuning is Better and Cheaper than In-Context Learning (T-Few / (IA)^3)",
+      "arxiv_v1_date": "2022-05-11",
+      "year": 2022,
+      "venue": "NeurIPS 2022",
+      "_introduces": "method_ia3"
+    },
+    {
+      "arxiv_id": "f7ca478e84103492ff5848e75762a627d6127eae",
+      "title": "Calibrating and Rotating: A Unified Framework for Weight Conditioning in PEFT",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "AAAI Conference on Artificial Intelligence"
+    },
+    {
+      "arxiv_id": "dff9b29918369f2ce7c06d13258ffad5c644788a",
+      "title": "ComPEFT: Compression for Communicating Parameter Efficient Updates via Sparsification and Quantization",
+      "arxiv_v1_date": null,
+      "year": 2023,
+      "venue": "Trans. Mach. Learn. Res."
+    },
+    {
+      "arxiv_id": "9aef980ac6e6a1cbc470362a042b75cfb50e2e48",
+      "title": "Learning Rate Matters: Vanilla LoRA May Suffice for LLM Fine-tuning",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "ebe9682c634c111b78c5d6cb30cb8703902a59db",
+      "title": "Adaptive and Fine-grained Module-wise Expert Pruning for Efficient LoRA-MoE Fine-Tuning",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "f2e78a574925486d1f13440f55688bcffde80101",
+      "title": "Parameter-Efficient Sparsity Crafting from Dense to Mixture-of-Experts for Instruction Tuning on General Tasks",
+      "arxiv_v1_date": null,
+      "year": 2024,
+      "venue": "Conference on Empirical Methods in Natural Language Processing"
+    },
+    {
+      "arxiv_id": "6d02b5bdb7f9eff8467e697bb7c470901c1f39b9",
+      "title": "Train Less, Infer Faster: Efficient Model Finetuning and Compression via Structured Sparsity",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "060cef532fa9074b54800a52754bdfb4b3fe0b0e",
+      "title": "Towards Optimal Adapter Placement for Efficient Transfer Learning",
+      "arxiv_v1_date": null,
+      "year": 2024,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "f4976fab1292e714556abf8e142f023b5d696359",
+      "title": "Ladder Up, Memory Down: Low-Cost Fine-Tuning With Side Nets",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "bb9e4142a2eefeaaf7d40528cb81f1a4ee75725a",
+      "title": "Random Masking Finds Winning Tickets for Parameter Efficient Fine-tuning",
+      "arxiv_v1_date": null,
+      "year": 2024,
+      "venue": "International Conference on Machine Learning"
+    },
+    {
+      "arxiv_id": "b80994cef09dab15a1fd312a1eb2d0790f7a6873",
+      "title": "mLoRA: Fine-Tuning LoRA Adapters via Highly-Efficient Pipeline Parallelism in Multiple GPUs",
+      "arxiv_v1_date": null,
+      "year": 2023,
+      "venue": "Proceedings of the VLDB Endowment"
+    },
+    {
+      "arxiv_id": "f3df163eab6ecaf77e50d08485acf9746df5fb64",
+      "title": "Few-Shot Adversarial Low-Rank Fine-Tuning of Vision-Language Models",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "95c7cb30f6a32355b12c09e570dbdcc848dcc2ef",
+      "title": "Parameter-Efficient Fine-Tuning of MedMAE for Multi-Task Medical Imaging",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "2025 13th International Japan-Africa Conference on Electronics, Communications, and Computations (JAC-ECC)"
+    },
+    {
+      "arxiv_id": "359ddd24c36ce879b3851872a90e992911e525c2",
+      "title": "Serving Heterogeneous LoRA Adapters in Distributed LLM Inference Systems",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "085aaef889fabab6b360d7e555a23d945039646c",
+      "title": "Efficient Fine-Tuning Strategies for Domain-Specific Large Language Models: A Comprehensive Study of Parameter-Efficient Methods",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "European Journal of Artificial Intelligence and Machine Learning"
+    },
+    {
+      "arxiv_id": "6aa47b5e638ee0ab84646b1ca497d121dc30fd70",
+      "title": "CLoRA: Parameter-Efficient Continual Learning with Low-Rank Adaptation",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "7b980eeccad44937bc38dd4b9133dde66115714d",
+      "title": "Decentralized Low-Rank Fine-Tuning of Large Language Models",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "Proceedings of the 1st Workshop for Research on Agent Language Models (REALM 2025)"
+    },
+    {
+      "arxiv_id": "1453b6a81548812147b9a6b9cda8309b75fb2c91",
+      "title": "Understanding and Guiding Layer Placement in Parameter-Efficient Fine-Tuning of Large Language Models",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "689395a346847e5fb0f4c8a756181e1acfdf6d9b",
+      "title": "PreLoRA: Hybrid Pre-training of Vision Transformers with Full Training and Low-Rank Adapters",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "bb79e82d7838c014a580006def85c485ac89ccaf",
+      "title": "Mitigating Catastrophic Forgetting in Fine-Tuned Large Language Models: An Experimental Study of LoRA and O-LoRA",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "Artificial Intelligence and Digital Technology"
+    },
+    {
+      "arxiv_id": "a790fe8a9301232cd65f4e5c96774534aaeb8a34",
+      "title": "A Systematic Evaluation of Parameter-Efficient Fine-Tuning Methods for the Security of Code LLMs",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "9a7b9515b66bf83c9c808626206eabe9a8837c22",
+      "title": "Exploring Parameter-Efficient Fine-Tuning Techniques for Code Generation with Large Language Models",
+      "arxiv_v1_date": null,
+      "year": 2023,
+      "venue": "ACM Transactions on Software Engineering and Methodology"
+    },
+    {
+      "arxiv_id": "5a02b00c2354acbf2144d8e12a0ac37c883677d9",
+      "title": "FT-MDT: Extracting Decision Trees from Medical Texts via a Novel Low-rank Adaptation Method",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "Conference on Empirical Methods in Natural Language Processing"
+    },
+    {
+      "arxiv_id": "47e0be6a2b3e9f22d459f6884aea166fa9bd511c",
+      "title": "Mask the Target: A Plug-and-Play Regularizer Against LoRA Forgetting",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": ""
+    },
+    {
+      "arxiv_id": "7b300db2b5e2e844e4e830b07e5a3831c4ef9cef",
+      "title": "Efficient Fine-Tuning Strategies for Domain-Adaptive Foundation Models in Large-Scale Data Science Applications",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "International Congress on Information and Communication Technology"
+    },
+    {
+      "arxiv_id": "81fa20218dc9c93c40eb02f3eefcc71155df976a",
+      "title": "Rethinking LoRA for Privacy-Preserving Federated Learning in Large Models",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "8bec1bb5a4ff53f811bfb9f67acdd2d1a94480dc",
+      "title": "CORAL: Scalable Multi-Task Robot Learning via LoRA Experts",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "b9dfeb8be89f95a91b7f69664b2ca68ba20ae4d1",
+      "title": "Unconstrained Sleep Apnea Detection With Conv-ViT Network: LoRA Tuning for Personalized Monitoring",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "IEEE Sensors Journal"
+    },
+    {
+      "arxiv_id": "9bba2827639e61959ee2047c1e64dc2f04d467d9",
+      "title": "SplitFT: An Adaptive Federated Split Learning System For LLMs Fine-Tuning",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "4e8e36ddbdb1569908e11b7e4b41bd9bc6ba6bf7",
+      "title": "Rotor Skidding Root-Cause Tracing and Regulation Based on Supervised Fine-Tuning of LLM",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "2025 Global Reliability and Prognostics and Health Management Conference (PHM-Xian)"
+    },
+    {
+      "arxiv_id": "2ea0ed8eb03c2c7302c6f22fe0190bff33f3819b",
+      "title": "EdgeLoRA: An Efficient Multi-Tenant LLM Serving System on Edge Devices",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "ACM SIGMOBILE International Conference on Mobile Systems, Applications, and Services"
+    },
+    {
+      "arxiv_id": "c03ff908ba59460dabe54d99db8e013dbc4e9408",
+      "title": "Fine-tuning versus Prompting: Choosing the Right Approach for Large Language Model Applications",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "Journal of Information Systems Engineering & Management"
+    },
+    {
+      "arxiv_id": "7479577ee6ccc0107a9c184245d91f5a8baf8508",
+      "title": "SimLoRA for enhanced domain specific LLM fine tuning using attention weighted low rank adaptation and RLHF",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "Discover Computing"
+    },
+    {
+      "arxiv_id": "66cae564d7d72200f3fb80a0600183ce7477d09d",
+      "title": "Low Rank Adaptation Enables Efficient Domain Transfer in Billion Parameter Language Models",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "Computer Life"
+    },
+    {
+      "arxiv_id": "841b1ce04e18838319ba55d516e96c654dcedc5a",
+      "title": "Transferring General Models to Vertical Domains for Fine-Grained Discrete Control Under Data Scarcity",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "IEEE International Conference on Robotics and Biomimetics"
+    },
+    {
+      "arxiv_id": "8dcd3eea9f9f319458b0bffdc96ec8e7808a1ba0",
+      "title": "Beyond PEFT: Layer-Wise Optimization for More Effective and Efficient Large Code Model Tuning",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "Proc. ACM Softw. Eng."
+    },
+    {
+      "arxiv_id": "4a92a5d7859aa6e80e7abe518d690516f80a7ff9",
+      "title": "Efficient and Adaptive Human Activity Recognition via LLM Backbones",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": ""
+    },
+    {
+      "arxiv_id": "5e71d0e85f65a1c0fb2af7bff281209122c58932",
+      "title": "When Scaling Meets LLM Finetuning: The Effect of Data, Model and Finetuning Method",
+      "arxiv_v1_date": null,
+      "year": 2024,
+      "venue": "International Conference on Learning Representations"
+    },
+    {
+      "arxiv_id": "4922f5af89ead8674c88dd3c07212b779a9886de",
+      "title": "Quantized Side Tuning: Fast and Memory-Efficient Tuning of Quantized Large Language Models",
+      "arxiv_v1_date": null,
+      "year": 2024,
+      "venue": "Annual Meeting of the Association for Computational Linguistics"
+    },
+    {
+      "arxiv_id": "4f74f4e77b53fac7621e4c82d5b4bd60ba64dbfa",
+      "title": "Output Composability of QLoRA PEFT Modules for Plug-and-Play Attribute-Controlled Text Generation",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": ""
+    },
+    {
+      "arxiv_id": "37cf52e7f8a8c165d80bc752bc6f4ecdb01bf926",
+      "title": "Deep Reprogramming Distillation for Medical Foundation Models",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": ""
+    },
+    {
+      "arxiv_id": "77f25b25552cb03dee1e7d02b5c159388928a731",
+      "title": "StatLLaMA: Multi-stage training for domain-optimized statistical large language models",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "Journal of Data Science Statistics and Visualisation"
+    },
+    {
+      "arxiv_id": "4f71f3ba99d63848868c56a021568157670c1813",
+      "title": "DP-MemArc: Differential Privacy Transfer Learning for Memory Efficient Language Models",
+      "arxiv_v1_date": null,
+      "year": 2024,
+      "venue": "AAAI Conference on Artificial Intelligence"
+    },
+    {
+      "arxiv_id": "247a3fbec4449211fa5fb017bbe42df4d182b308",
+      "title": "Balancing Efficiency and Performance: A Comparative Study of LoRA, Adapters, and Prompt Tuning",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "Global Social Science and Humanities Journal"
+    },
+    {
+      "arxiv_id": "549fc227a5a73b6b3b4613f30bbde686545c2d03",
+      "title": "Multi-Task LLM with LoRA Fine-Tuning for Automated Cancer Staging and Biomarker Extraction",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "6ed671f83ed3fb6ea42bf416e85eb4d3e22d60a2",
+      "title": "Benchmarking LLMs on Maliki Fiqh and Bridging Performance Gaps via Parameter-Efficient Fine-Tuning",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "2026 International Symposium of Systems, Advanced Technologies and Knowledge (ISSATK)"
+    },
+    {
+      "arxiv_id": "897dc95ecb98bb67b01a9e1e844548c9d8027111",
+      "title": "LoRA-based Parameter-Efficient LLMs for Continuous Learning in Edge-based Malware Detection",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "d29f0121852e958c49fe2f440b0c2fcc67289c6e",
+      "title": "Experimental Evaluation of Parameter-Efficient Fine-Tuning for Software Engineering Tasks",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "ACM Transactions on Software Engineering and Methodology"
+    },
+    {
+      "arxiv_id": "2a69bfc9d7b3e1feba58670723706e8655b3be78",
+      "title": "One Model, Many Skills: Parameter-Efficient Fine-Tuning for Multitask Code Analysis",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "f91870faf08dabfabcd751ce6a1ed0387d2d4832",
+      "title": "Efficient Ensemble for Fine-tuning Language Models on Multiple Datasets",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "Annual Meeting of the Association for Computational Linguistics"
+    },
+    {
+      "arxiv_id": "743be1096775e7dcbc37b56414fdee9292b328e6",
+      "title": "PEFT of SLM for Telecommunications Customer Support: A Comparative Study of LoRA Configurations with Energy Consumption Analysis",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": ""
+    },
+    {
+      "arxiv_id": "e3a9f59f6db8d5d9b5066a3df2f56a2b917672e4",
+      "title": "LoRA-Based Continual Instruction Tuning in Heterogeneous Multi-Task Scenario",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "2026 6th International Conference on Artificial Intelligence and Industrial Technology Applications (AIITA)"
+    },
+    {
+      "arxiv_id": "d1596c0665bc6091e95eedef215928efc6af5822",
+      "title": "Efficient Fine-Tuning Methods for Portuguese Question Answering: A Comparative Study of PEFT on BERTimbau and Exploratory Evaluation of Generative LLMs",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "International Conference on Computational Processing of the Portuguese Language"
+    },
+    {
+      "arxiv_id": "82d5edc9d9b081d5ced9f6622fa43ed494b8f42c",
+      "title": "Cost-Aware Fine-Tuning: Evaluating Hyperparameters, Datasets and PEFT Methods for Efficient LLM Adaptation",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "International Conference on AI-ML-Systems"
+    },
+    {
+      "arxiv_id": "b9bc1fc5bfeaac14aa505906368489eb35558a40",
+      "title": "Dataset Size Recovery from LoRA Weights",
+      "arxiv_v1_date": null,
+      "year": 2024,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "23aefa7c647f281b7876debf4bf5ecbca7d91fef",
+      "title": "Soft-Prompt Tuning for Fair and Efficient LLM Benchmark Evaluation",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": ""
+    },
+    {
+      "arxiv_id": "befcf6c3fcf89ecb2ccfad2ccf7a28ad5abebe49",
+      "title": "Low-Resource Dialect Adaptation of Large Language Models: A French Dialect Case-Study",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "de18e8f4e619e78aab00f1408bce6be661f7ee2e",
+      "title": "Larger Is Not Always Better: Exploring Small Open-source Language Models in Logging Statement Generation",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "ACM Transactions on Software Engineering and Methodology"
+    },
+    {
+      "arxiv_id": "b4f1a31fca5efb0378f475cebce08f91d8efc266",
+      "title": "Modular Multi-Task Learning for Chemical Reaction Prediction",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "dd3c45b224ece408dc164ce986805a169cfaa279",
+      "title": "The nextAI Solution to the NeurIPS 2023 LLM Efficiency Challenge",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    },
+    {
+      "arxiv_id": "63742ec7dd2e95235c0b35bf8b95e6d8a2dc35a4",
+      "title": "Resource-Efficient & Effective Code Summarization",
+      "arxiv_v1_date": null,
+      "year": 2025,
+      "venue": "2025 IEEE/ACM Second International Conference on AI Foundation Models and Software Engineering (Forge)"
+    },
+    {
+      "arxiv_id": "2a8214b54e525167ac9ef8651b3f9f247cdb6e90",
+      "title": "ChipLingo: A Systematic Training Framework for Large Language Models in EDA",
+      "arxiv_v1_date": null,
+      "year": 2026,
+      "venue": "arXiv.org"
+    }
+  ],
+  "edges": {
+    "INTRODUCES": [
+      {
+        "from_paper": "1902.00751",
+        "to_method": "method_adapters"
+      },
+      {
+        "from_paper": "2005.00247",
+        "to_method": "method_pfeiffer_adapters"
+      },
+      {
+        "from_paper": "2106.04647",
+        "to_method": "method_compacter"
+      },
+      {
+        "from_paper": "2101.00190",
+        "to_method": "method_prefix_tuning"
+      },
+      {
+        "from_paper": "2104.08691",
+        "to_method": "method_prompt_tuning"
+      },
+      {
+        "from_paper": "2103.10385",
+        "to_method": "method_ptuning"
+      },
+      {
+        "from_paper": "2110.07602",
+        "to_method": "method_ptuning_v2"
+      },
+      {
+        "from_paper": "2106.09685",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "2303.10512",
+        "to_method": "method_adalora"
+      },
+      {
+        "from_paper": "2305.14314",
+        "to_method": "method_qlora"
+      },
+      {
+        "from_paper": "2310.11454",
+        "to_method": "method_vera"
+      },
+      {
+        "from_paper": "2106.10199",
+        "to_method": "method_bitfit"
+      },
+      {
+        "from_paper": "2205.05638",
+        "to_method": "method_ia3"
+      }
+    ],
+    "EXTENDS": [
+      {
+        "from_method": "method_pfeiffer_adapters",
+        "to_method": "method_adapters",
+        "note": "Repositions/prunes Houlsby modules; reduces to Houlsby config."
+      },
+      {
+        "from_method": "method_compacter",
+        "to_method": "method_adapters",
+        "note": "Kronecker/hypercomplex parameterization of the same adapter module."
+      },
+      {
+        "from_method": "method_prompt_tuning",
+        "to_method": "method_prefix_tuning",
+        "note": "Restricts prefixes to input layer only; strict simplification."
+      },
+      {
+        "from_method": "method_ptuning_v2",
+        "to_method": "method_ptuning",
+        "note": "Dual parent: merges P-Tuning's framing..."
+      },
+      {
+        "from_method": "method_ptuning_v2",
+        "to_method": "method_prefix_tuning",
+        "note": "Dual parent: ...with Prefix-Tuning's deep prompts."
+      },
+      {
+        "from_method": "method_adalora",
+        "to_method": "method_lora",
+        "note": "Uniform rank budget -> plain LoRA. Passes reduction test."
+      },
+      {
+        "from_method": "method_qlora",
+        "to_method": "method_lora",
+        "note": "Trainable mechanism is unmodified LoRA; novelty in frozen base (quantization)."
+      },
+      {
+        "from_method": "method_vera",
+        "to_method": "method_lora",
+        "note": "Freezes A,B; trains scaling vectors. Explicitly modifies LoRA's decomposition."
+      }
+    ],
+    "COMPARED_AGAINST": [
+      {
+        "from_method": "method_lora",
+        "to_method": "method_adapters",
+        "evidence_paper": "2106.09685",
+        "note": "Adapter^H/^L/^D baseline rows in main GLUE/GPT tables",
+        "_untracked_baselines": [
+          "full fine-tuning",
+          "FTTop2",
+          "PreEmbed",
+          "PreLayer"
+        ]
+      },
+      {
+        "from_method": "method_lora",
+        "to_method": "method_pfeiffer_adapters",
+        "evidence_paper": "2106.09685",
+        "note": "Adapter^P (Pfeiffer) baseline row"
+      },
+      {
+        "from_method": "method_lora",
+        "to_method": "method_prefix_tuning",
+        "evidence_paper": "2106.09685",
+        "note": "PreEmbed/PreLayer = prefix-tuning family baselines"
+      },
+      {
+        "from_method": "method_lora",
+        "to_method": "method_bitfit",
+        "evidence_paper": "2106.09685",
+        "note": "Bias-only/BitFit baseline row"
+      },
+      {
+        "from_method": "method_prefix_tuning",
+        "to_method": "method_adapters",
+        "evidence_paper": "2101.00190",
+        "note": "Adapter (3% and 0.1%) baseline rows in table-to-text tables",
+        "_untracked_baselines": [
+          "full fine-tuning",
+          "FT-top2"
+        ]
+      },
+      {
+        "from_method": "method_prompt_tuning",
+        "to_method": "method_prefix_tuning",
+        "evidence_paper": "2104.08691",
+        "note": "Prefix Tuning baseline in Fig 4 / main SuperGLUE comparison",
+        "_untracked_baselines": [
+          "model tuning (full FT)",
+          "WARP"
+        ]
+      },
+      {
+        "from_method": "method_bitfit",
+        "to_method": "method_adapters",
+        "evidence_paper": "2106.10199",
+        "note": "Adapters baseline row in main GLUE tables",
+        "_untracked_baselines": [
+          "full fine-tuning",
+          "Diff-Prune"
+        ]
+      },
+      {
+        "from_method": "method_qlora",
+        "to_method": "method_lora",
+        "evidence_paper": "2305.14314",
+        "note": "16-bit LoRA (BF16) baseline row; QLoRA also EXTENDS LoRA (distinct claim)",
+        "_untracked_baselines": [
+          "16-bit full FT (BF16)",
+          "Int8",
+          "FP4"
+        ]
+      },
+      {
+        "from_method": "method_adalora",
+        "to_method": "method_lora",
+        "evidence_paper": "2303.10512",
+        "note": "LoRA baseline row (all-matrix variant)",
+        "_untracked_baselines": [
+          "full fine-tuning"
+        ]
+      },
+      {
+        "from_method": "method_adalora",
+        "to_method": "method_adapters",
+        "evidence_paper": "2303.10512",
+        "note": "HAdapter (Houlsby) baseline row"
+      },
+      {
+        "from_method": "method_adalora",
+        "to_method": "method_pfeiffer_adapters",
+        "evidence_paper": "2303.10512",
+        "note": "PAdapter (Pfeiffer) baseline row"
+      },
+      {
+        "from_method": "method_adalora",
+        "to_method": "method_bitfit",
+        "evidence_paper": "2303.10512",
+        "note": "BitFit baseline row"
+      },
+      {
+        "from_method": "method_vera",
+        "to_method": "method_lora",
+        "evidence_paper": "2310.11454",
+        "note": "LoRA baseline row; VeRA also EXTENDS LoRA (distinct claim)",
+        "_untracked_baselines": [
+          "full fine-tuning"
+        ]
+      },
+      {
+        "from_method": "method_vera",
+        "to_method": "method_adapters",
+        "evidence_paper": "2310.11454",
+        "note": "AdapterH/L/D baseline rows"
+      },
+      {
+        "from_method": "method_vera",
+        "to_method": "method_pfeiffer_adapters",
+        "evidence_paper": "2310.11454",
+        "note": "AdapterP (Pfeiffer) baseline row"
+      },
+      {
+        "from_method": "method_vera",
+        "to_method": "method_bitfit",
+        "evidence_paper": "2310.11454",
+        "note": "BitFit baseline row"
+      },
+      {
+        "from_method": "method_ia3",
+        "to_method": "method_lora",
+        "evidence_paper": "2205.05638",
+        "note": "LoRA among 9 PEFT baselines in main Table 1",
+        "_untracked_baselines": [
+          "full FT",
+          "FISH Mask",
+          "Intrinsic SAID"
+        ]
+      },
+      {
+        "from_method": "method_ia3",
+        "to_method": "method_bitfit",
+        "evidence_paper": "2205.05638",
+        "note": "BitFit baseline row"
+      },
+      {
+        "from_method": "method_ia3",
+        "to_method": "method_adapters",
+        "evidence_paper": "2205.05638",
+        "note": "Adapter baseline row"
+      },
+      {
+        "from_method": "method_ia3",
+        "to_method": "method_compacter",
+        "evidence_paper": "2205.05638",
+        "note": "Compacter and Compacter++ baseline rows"
+      },
+      {
+        "from_method": "method_ia3",
+        "to_method": "method_prompt_tuning",
+        "evidence_paper": "2205.05638",
+        "note": "prompt tuning baseline row"
+      },
+      {
+        "from_method": "method_ia3",
+        "to_method": "method_prefix_tuning",
+        "evidence_paper": "2205.05638",
+        "note": "prefix-tuning baseline row"
+      },
+      {
+        "from_method": "method_compacter",
+        "to_method": "method_adapters",
+        "evidence_paper": "2106.04647",
+        "note": "Adapter (Houlsby) + AdapterDrop + Adapter-LowRank baseline rows",
+        "_untracked_baselines": [
+          "full fine-tuning (T5BASE)",
+          "Intrinsic-SAID"
+        ]
+      },
+      {
+        "from_method": "method_compacter",
+        "to_method": "method_pfeiffer_adapters",
+        "evidence_paper": "2106.04647",
+        "note": "Pfeiffer-Adapter baseline row"
+      },
+      {
+        "from_method": "method_compacter",
+        "to_method": "method_prompt_tuning",
+        "evidence_paper": "2106.04647",
+        "note": "Prompt Tuning-R/-T baseline rows"
+      },
+      {
+        "from_method": "method_compacter",
+        "to_method": "method_bitfit",
+        "evidence_paper": "2106.04647",
+        "note": "BitFit baseline row"
+      },
+      {
+        "from_method": "method_ptuning",
+        "to_method": "method_prompt_tuning",
+        "evidence_paper": "2103.10385",
+        "note": "Prompt Tuning (Lester, concurrent) baseline row",
+        "_untracked_baselines": [
+          "Manual Prompts",
+          "PET",
+          "AutoPrompt",
+          "LPAQA",
+          "CLS-FT"
+        ]
+      },
+      {
+        "from_method": "method_ptuning_v2",
+        "to_method": "method_prompt_tuning",
+        "evidence_paper": "2110.07602",
+        "note": "Prompt Tuning (Lester) 'PT' baseline row",
+        "_untracked_baselines": [
+          "full fine-tuning"
+        ]
+      },
+      {
+        "from_method": "method_ptuning_v2",
+        "to_method": "method_ptuning",
+        "evidence_paper": "2110.07602",
+        "note": "P-Tuning (Liu) baseline row"
+      },
+      {
+        "from_method": "method_pfeiffer_adapters",
+        "to_method": "method_adapters",
+        "evidence_paper": "2005.00247",
+        "note": "ST-A^Houlsby single-task adapter baseline row",
+        "_untracked_baselines": [
+          "Head-only",
+          "full fine-tuning"
+        ]
+      }
+    ],
+    "EVALUATED_ON": [
+      {
+        "from_method": "method_lora",
+        "to_benchmark": "glue",
+        "evidence_paper": "2106.09685"
+      },
+      {
+        "from_method": "method_lora",
+        "to_benchmark": "e2e_nlg",
+        "evidence_paper": "2106.09685"
+      },
+      {
+        "from_method": "method_lora",
+        "to_benchmark": "wikisql",
+        "evidence_paper": "2106.09685"
+      },
+      {
+        "from_method": "method_lora",
+        "to_benchmark": "samsum",
+        "evidence_paper": "2106.09685"
+      },
+      {
+        "from_method": "method_adapters",
+        "to_benchmark": "glue",
+        "evidence_paper": "1902.00751"
+      },
+      {
+        "from_method": "method_adapters",
+        "to_benchmark": "squad",
+        "evidence_paper": "1902.00751"
+      },
+      {
+        "from_method": "method_prefix_tuning",
+        "to_benchmark": "e2e_nlg",
+        "evidence_paper": "2101.00190"
+      },
+      {
+        "from_method": "method_prefix_tuning",
+        "to_benchmark": "webnlg",
+        "evidence_paper": "2101.00190"
+      },
+      {
+        "from_method": "method_prefix_tuning",
+        "to_benchmark": "dart",
+        "evidence_paper": "2101.00190"
+      },
+      {
+        "from_method": "method_prefix_tuning",
+        "to_benchmark": "xsum",
+        "evidence_paper": "2101.00190"
+      },
+      {
+        "from_method": "method_prompt_tuning",
+        "to_benchmark": "superglue",
+        "evidence_paper": "2104.08691"
+      },
+      {
+        "from_method": "method_bitfit",
+        "to_benchmark": "glue",
+        "evidence_paper": "2106.10199"
+      },
+      {
+        "from_method": "method_qlora",
+        "to_benchmark": "mmlu",
+        "evidence_paper": "2305.14314"
+      },
+      {
+        "from_method": "method_qlora",
+        "to_benchmark": "glue",
+        "evidence_paper": "2305.14314"
+      },
+      {
+        "from_method": "method_qlora",
+        "to_benchmark": "super_natural_instructions",
+        "evidence_paper": "2305.14314"
+      },
+      {
+        "from_method": "method_qlora",
+        "to_benchmark": "vicuna",
+        "evidence_paper": "2305.14314",
+        "note": "GPT-4/human Elo eval; instruction-tuning datasets (Alpaca/FLAN) excluded as training data, not eval targets"
+      },
+      {
+        "from_method": "method_adalora",
+        "to_benchmark": "glue",
+        "evidence_paper": "2303.10512"
+      },
+      {
+        "from_method": "method_adalora",
+        "to_benchmark": "squad",
+        "evidence_paper": "2303.10512",
+        "subset_evaluated": "SQuAD v1.1 and v2.0"
+      },
+      {
+        "from_method": "method_adalora",
+        "to_benchmark": "xsum",
+        "evidence_paper": "2303.10512"
+      },
+      {
+        "from_method": "method_adalora",
+        "to_benchmark": "cnn_dailymail",
+        "evidence_paper": "2303.10512"
+      },
+      {
+        "from_method": "method_vera",
+        "to_benchmark": "glue",
+        "evidence_paper": "2310.11454"
+      },
+      {
+        "from_method": "method_vera",
+        "to_benchmark": "e2e_nlg",
+        "evidence_paper": "2310.11454"
+      },
+      {
+        "from_method": "method_vera",
+        "to_benchmark": "mt_bench",
+        "evidence_paper": "2310.11454"
+      },
+      {
+        "from_method": "method_ia3",
+        "to_benchmark": "raft",
+        "evidence_paper": "2205.05638"
+      },
+      {
+        "from_method": "method_ia3",
+        "to_benchmark": "t0_heldout",
+        "evidence_paper": "2205.05638",
+        "note": "median over COPA/HellaSwag/StoryCloze/ANLI/CB/RTE/WiC/WSC/Winogrande"
+      },
+      {
+        "from_method": "method_compacter",
+        "to_benchmark": "glue",
+        "evidence_paper": "2106.04647"
+      },
+      {
+        "from_method": "method_compacter",
+        "to_benchmark": "superglue",
+        "evidence_paper": "2106.04647"
+      },
+      {
+        "from_method": "method_ptuning",
+        "to_benchmark": "lama",
+        "evidence_paper": "2103.10385"
+      },
+      {
+        "from_method": "method_ptuning",
+        "to_benchmark": "superglue",
+        "evidence_paper": "2103.10385"
+      },
+      {
+        "from_method": "method_ptuning_v2",
+        "to_benchmark": "superglue",
+        "evidence_paper": "2110.07602"
+      },
+      {
+        "from_method": "method_ptuning_v2",
+        "to_benchmark": "squad",
+        "evidence_paper": "2110.07602",
+        "subset_evaluated": "SQuAD 1.1 + 2.0 dev"
+      },
+      {
+        "from_method": "method_ptuning_v2",
+        "to_benchmark": "conll03",
+        "evidence_paper": "2110.07602",
+        "note": "NER; also CoNLL04 (NER), CoNLL05/12 (SRL), OntoNotes 5.0 in same seq-labeling tables"
+      },
+      {
+        "from_method": "method_pfeiffer_adapters",
+        "to_benchmark": "glue",
+        "evidence_paper": "2005.00247",
+        "subset_evaluated": "MNLI, QQP, SST, MRPC, RTE (GLUE subset within the 16-task suite)"
+      },
+      {
+        "from_method": "method_pfeiffer_adapters",
+        "to_benchmark": "superglue",
+        "evidence_paper": "2005.00247",
+        "subset_evaluated": "BoolQ, CB (SuperGLUE subset within the 16-task suite)"
+      }
+    ],
+    "APPLIES": [
+      {
+        "from_paper": "f7ca478e84103492ff5848e75762a627d6127eae",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "dff9b29918369f2ce7c06d13258ffad5c644788a",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "9aef980ac6e6a1cbc470362a042b75cfb50e2e48",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "ebe9682c634c111b78c5d6cb30cb8703902a59db",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "f2e78a574925486d1f13440f55688bcffde80101",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "6d02b5bdb7f9eff8467e697bb7c470901c1f39b9",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "060cef532fa9074b54800a52754bdfb4b3fe0b0e",
+        "to_method": "method_adapters"
+      },
+      {
+        "from_paper": "f4976fab1292e714556abf8e142f023b5d696359",
+        "to_method": "method_qlora"
+      },
+      {
+        "from_paper": "bb9e4142a2eefeaaf7d40528cb81f1a4ee75725a",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "bb9e4142a2eefeaaf7d40528cb81f1a4ee75725a",
+        "to_method": "method_bitfit"
+      },
+      {
+        "from_paper": "b80994cef09dab15a1fd312a1eb2d0790f7a6873",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "f3df163eab6ecaf77e50d08485acf9746df5fb64",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "95c7cb30f6a32355b12c09e570dbdcc848dcc2ef",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "95c7cb30f6a32355b12c09e570dbdcc848dcc2ef",
+        "to_method": "method_adapters"
+      },
+      {
+        "from_paper": "359ddd24c36ce879b3851872a90e992911e525c2",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "085aaef889fabab6b360d7e555a23d945039646c",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "085aaef889fabab6b360d7e555a23d945039646c",
+        "to_method": "method_qlora"
+      },
+      {
+        "from_paper": "6aa47b5e638ee0ab84646b1ca497d121dc30fd70",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "7b980eeccad44937bc38dd4b9133dde66115714d",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "1453b6a81548812147b9a6b9cda8309b75fb2c91",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "689395a346847e5fb0f4c8a756181e1acfdf6d9b",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "bb79e82d7838c014a580006def85c485ac89ccaf",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "a790fe8a9301232cd65f4e5c96774534aaeb8a34",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "a790fe8a9301232cd65f4e5c96774534aaeb8a34",
+        "to_method": "method_adapters"
+      },
+      {
+        "from_paper": "a790fe8a9301232cd65f4e5c96774534aaeb8a34",
+        "to_method": "method_prompt_tuning"
+      },
+      {
+        "from_paper": "a790fe8a9301232cd65f4e5c96774534aaeb8a34",
+        "to_method": "method_qlora"
+      },
+      {
+        "from_paper": "9a7b9515b66bf83c9c808626206eabe9a8837c22",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "5a02b00c2354acbf2144d8e12a0ac37c883677d9",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "47e0be6a2b3e9f22d459f6884aea166fa9bd511c",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "7b300db2b5e2e844e4e830b07e5a3831c4ef9cef",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "7b300db2b5e2e844e4e830b07e5a3831c4ef9cef",
+        "to_method": "method_adapters"
+      },
+      {
+        "from_paper": "81fa20218dc9c93c40eb02f3eefcc71155df976a",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "8bec1bb5a4ff53f811bfb9f67acdd2d1a94480dc",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "b9dfeb8be89f95a91b7f69664b2ca68ba20ae4d1",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "9bba2827639e61959ee2047c1e64dc2f04d467d9",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "4e8e36ddbdb1569908e11b7e4b41bd9bc6ba6bf7",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "2ea0ed8eb03c2c7302c6f22fe0190bff33f3819b",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "c03ff908ba59460dabe54d99db8e013dbc4e9408",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "7479577ee6ccc0107a9c184245d91f5a8baf8508",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "66cae564d7d72200f3fb80a0600183ce7477d09d",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "841b1ce04e18838319ba55d516e96c654dcedc5a",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "8dcd3eea9f9f319458b0bffdc96ec8e7808a1ba0",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "4a92a5d7859aa6e80e7abe518d690516f80a7ff9",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "5e71d0e85f65a1c0fb2af7bff281209122c58932",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "5e71d0e85f65a1c0fb2af7bff281209122c58932",
+        "to_method": "method_adapters"
+      },
+      {
+        "from_paper": "5e71d0e85f65a1c0fb2af7bff281209122c58932",
+        "to_method": "method_prompt_tuning"
+      },
+      {
+        "from_paper": "4922f5af89ead8674c88dd3c07212b779a9886de",
+        "to_method": "method_qlora"
+      },
+      {
+        "from_paper": "4f74f4e77b53fac7621e4c82d5b4bd60ba64dbfa",
+        "to_method": "method_qlora"
+      },
+      {
+        "from_paper": "37cf52e7f8a8c165d80bc752bc6f4ecdb01bf926",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "77f25b25552cb03dee1e7d02b5c159388928a731",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "4f71f3ba99d63848868c56a021568157670c1813",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "247a3fbec4449211fa5fb017bbe42df4d182b308",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "247a3fbec4449211fa5fb017bbe42df4d182b308",
+        "to_method": "method_adapters"
+      },
+      {
+        "from_paper": "247a3fbec4449211fa5fb017bbe42df4d182b308",
+        "to_method": "method_prompt_tuning"
+      },
+      {
+        "from_paper": "549fc227a5a73b6b3b4613f30bbde686545c2d03",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "6ed671f83ed3fb6ea42bf416e85eb4d3e22d60a2",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "897dc95ecb98bb67b01a9e1e844548c9d8027111",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "d29f0121852e958c49fe2f440b0c2fcc67289c6e",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "d29f0121852e958c49fe2f440b0c2fcc67289c6e",
+        "to_method": "method_adapters"
+      },
+      {
+        "from_paper": "d29f0121852e958c49fe2f440b0c2fcc67289c6e",
+        "to_method": "method_prompt_tuning"
+      },
+      {
+        "from_paper": "2a69bfc9d7b3e1feba58670723706e8655b3be78",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "f91870faf08dabfabcd751ce6a1ed0387d2d4832",
+        "to_method": "method_qlora"
+      },
+      {
+        "from_paper": "743be1096775e7dcbc37b56414fdee9292b328e6",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "e3a9f59f6db8d5d9b5066a3df2f56a2b917672e4",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "d1596c0665bc6091e95eedef215928efc6af5822",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "d1596c0665bc6091e95eedef215928efc6af5822",
+        "to_method": "method_qlora"
+      },
+      {
+        "from_paper": "82d5edc9d9b081d5ced9f6622fa43ed494b8f42c",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "82d5edc9d9b081d5ced9f6622fa43ed494b8f42c",
+        "to_method": "method_adapters"
+      },
+      {
+        "from_paper": "82d5edc9d9b081d5ced9f6622fa43ed494b8f42c",
+        "to_method": "method_qlora"
+      },
+      {
+        "from_paper": "b9bc1fc5bfeaac14aa505906368489eb35558a40",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "23aefa7c647f281b7876debf4bf5ecbca7d91fef",
+        "to_method": "method_prompt_tuning"
+      },
+      {
+        "from_paper": "befcf6c3fcf89ecb2ccfad2ccf7a28ad5abebe49",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "de18e8f4e619e78aab00f1408bce6be661f7ee2e",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "b4f1a31fca5efb0378f475cebce08f91d8efc266",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "dd3c45b224ece408dc164ce986805a169cfaa279",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "dd3c45b224ece408dc164ce986805a169cfaa279",
+        "to_method": "method_qlora"
+      },
+      {
+        "from_paper": "63742ec7dd2e95235c0b35bf8b95e6d8a2dc35a4",
+        "to_method": "method_lora"
+      },
+      {
+        "from_paper": "2a8214b54e525167ac9ef8651b3f9f247cdb6e90",
+        "to_method": "method_lora"
+      }
+    ]
+  },
+  "benchmarks": [
+    {
+      "slug": "glue",
+      "name": "GLUE",
+      "granularity": "suite"
+    },
+    {
+      "slug": "e2e_nlg",
+      "name": "E2E NLG Challenge",
+      "granularity": "dataset"
+    },
+    {
+      "slug": "wikisql",
+      "name": "WikiSQL",
+      "granularity": "dataset"
+    },
+    {
+      "slug": "samsum",
+      "name": "SAMSum",
+      "granularity": "dataset"
+    },
+    {
+      "slug": "squad",
+      "name": "SQuAD",
+      "granularity": "dataset"
+    },
+    {
+      "slug": "webnlg",
+      "name": "WebNLG",
+      "granularity": "dataset"
+    },
+    {
+      "slug": "dart",
+      "name": "DART",
+      "granularity": "dataset"
+    },
+    {
+      "slug": "xsum",
+      "name": "XSum",
+      "granularity": "dataset"
+    },
+    {
+      "slug": "superglue",
+      "name": "SuperGLUE",
+      "granularity": "suite"
+    },
+    {
+      "slug": "mmlu",
+      "name": "MMLU",
+      "granularity": "suite"
+    },
+    {
+      "slug": "super_natural_instructions",
+      "name": "Super-NaturalInstructions",
+      "granularity": "suite"
+    },
+    {
+      "slug": "vicuna",
+      "name": "Vicuna Benchmark",
+      "granularity": "dataset"
+    },
+    {
+      "slug": "cnn_dailymail",
+      "name": "CNN/DailyMail",
+      "granularity": "dataset"
+    },
+    {
+      "slug": "mt_bench",
+      "name": "MT-Bench",
+      "granularity": "dataset"
+    },
+    {
+      "slug": "raft",
+      "name": "RAFT",
+      "granularity": "suite"
+    },
+    {
+      "slug": "t0_heldout",
+      "name": "T0 Held-out Tasks",
+      "granularity": "suite"
+    },
+    {
+      "slug": "lama",
+      "name": "LAMA",
+      "granularity": "suite"
+    },
+    {
+      "slug": "conll03",
+      "name": "CoNLL-2003 (NER)",
+      "granularity": "dataset"
+    }
+  ]
+}

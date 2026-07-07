@@ -1,0 +1,22 @@
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- run logs / scratch ---
+run.log
+run2.log
+*.log
+
+# --- personal working notes (manual-review worksheets, not deliverables) ---
+# Kept locally as proof-of-review; not shipped raw because they contain
+# in-progress checkboxes. Findings are summarized in approach.md instead.
+verify_3_2.txt
+verify_3_3_borderline.txt
+
+# --- local tooling / assistant config (not part of the submission) ---
+.claude/
+.code-review-graph/
+.mcp.json
+CLAUDE.md
