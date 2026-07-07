@@ -72,6 +72,55 @@ taxonomy is readable **without running any code**.
 Six family roots: **Adapters, Prefix-Tuning, P-Tuning, LoRA, BitFit, (IA)³.**
 Everything else is a variant connected by an `EXTENDS` edge.
 
+### Method taxonomy (the `EXTENDS` family tree)
+
+Grouped by mechanism family; arrows point from a method to the variant that
+extends it. Roots (outlined) define a family's mechanism; everything else
+reduces to a root under the test in [`approach.md`](approach.md). Generated from
+`graph.json` by `src/render_mermaid.py`, so it cannot drift from the data.
+
+```mermaid
+graph TD
+    subgraph additive_adapter["Adapter family"]
+        method_adapters["Adapters - 2019  (root)"]
+        method_pfeiffer_adapters["Pfeiffer Adapters - 2020"]
+        method_compacter["Compacter - 2021"]
+    end
+    subgraph reparameterization["LoRA family"]
+        method_lora["LoRA - 2021  (root)"]
+        method_adalora["AdaLoRA - 2023"]
+        method_qlora["QLoRA - 2023"]
+        method_vera["VeRA - 2023"]
+    end
+    subgraph soft_prompt["Soft-prompt family"]
+        method_prefix_tuning["Prefix-Tuning - 2021  (root)"]
+        method_prompt_tuning["Prompt-Tuning - 2021"]
+        method_ptuning["P-Tuning - 2021  (root)"]
+        method_ptuning_v2["P-Tuning v2 - 2021"]
+    end
+    subgraph selective["Selective"]
+        method_bitfit["BitFit - 2021  (root)"]
+    end
+    subgraph multiplicative["Multiplicative"]
+        method_ia3["(IA)^3 - 2022  (root)"]
+    end
+
+    method_adapters --> method_pfeiffer_adapters
+    method_adapters --> method_compacter
+    method_prefix_tuning --> method_prompt_tuning
+    method_ptuning --> method_ptuning_v2
+    method_prefix_tuning --> method_ptuning_v2
+    method_lora --> method_adalora
+    method_lora --> method_qlora
+    method_lora --> method_vera
+
+    classDef root stroke:#888,stroke-width:2px;
+    class method_adapters,method_prefix_tuning,method_ptuning,method_lora,method_bitfit,method_ia3 root;
+```
+
+Note P-Tuning v2 has **two** parents (P-Tuning and Prefix-Tuning) — it merges
+both, which the `EXTENDS` DAG represents directly.
+
 ---
 
 ## Layout
@@ -86,6 +135,7 @@ Everything else is a variant connected by an `EXTENDS` edge.
 ├── src/
 │   ├── suggest_method.py             # ⭐ reasoning engine — positions a new PEFT idea
 │   ├── validate_graph.py             # executable validation suite (schema.md §4)
+│   ├── render_mermaid.py             # regenerates the taxonomy diagram from graph.json
 │   ├── fetch_papers.py               # corpus fetcher (Semantic Scholar batch endpoint)
 │   └── tag_applies.py                # builds/merges the APPLIES review worksheet
 └── data/
