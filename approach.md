@@ -95,7 +95,7 @@ own target.
 
 The fix was a third way in: **APPLIES** (Paper→Method) — a paper that *runs* a
 tracked method unmodified and reports a result. This is what carries the corpus
-from 13 to 74: domain applications (medical, malware, speech), systems papers
+from 13 to 68: domain applications (medical, malware, speech), systems papers
 (mLoRA, EdgeLoRA), comparative re-benchmarking studies. It also answers a
 question none of my other edges could — *who actually uses each method in
 practice* — which in hindsight is a genuinely useful thing to have, but I want to
@@ -170,7 +170,7 @@ The taxonomy, the EXTENDS edges, and the 13 papers' COMPARED_AGAINST /
 EVALUATED_ON edges I verified by consulting the original papers — focusing on the
 method descriptions and primary evaluation tables — because those edges need more
 than an abstract to get right, and I didn't trust abstract-level tagging for them.
-The ~60 APPLIES papers were the other tier: tractable to tag from abstracts, so I
+The ~55 APPLIES papers were the other tier: tractable to tag from abstracts, so I
 fetched a candidate pool and tagged at scale. That asymmetry — evidence-heavy
 edges checked against the papers, higher-volume edges tagged from abstracts — is
 something I planned for.
@@ -205,12 +205,19 @@ consistency. I'd already rejected Echo-LoRA and Zipper-LoRA for being self-named
 variants, and if I accepted SiRA I'd be answering the same "is composition a
 modification?" question two different ways in the same graph. A reviewer checking
 my work would find that inconsistency faster than anything else, so I made the
-rule uniform — self-named composition = variant = reject — and took the corpus
-from 76 to 74, still inside the 60–80 band. I also flipped one the *other*
-direction ("Vanilla LoRA May Suffice," which I'd wrongly rejected — it runs LoRA
-unmodified to make an empirical point, which is textbook APPLIES). I logged a
-`reason`, `confidence`, and `evidence` for every one of the 200 calls so this is
-auditable rather than my say-so.
+rule uniform — self-named composition = variant = reject. When I then reviewed the
+rest of the borderline calls against that same rule, six more fell to it: ComPEFT
+(compresses a trained LoRA vector post-hoc — tooling, not a run of LoRA), a
+LoRA-MoE pruning framework (DMEP), a sparsity-crafting method (PESC), a
+stochastic-gate method benchmarked *against* LoRA (FineGates), a weight-conditioning
+pair (Pre-Diag/SORA), and an adapter-placement paper that actually introduces
+long-range/recurrent adapter connections. Each names a new method, so each is a
+variant, not an application. That review took the corpus from 74 to 68, still
+inside the 60–80 band. I also flipped one the *other* direction ("Vanilla LoRA May
+Suffice," which I'd wrongly rejected — it runs LoRA unmodified to make an empirical
+point, which is textbook APPLIES). I logged a `reason`, `confidence`, and
+`evidence` for every one of the 200 calls so this is auditable rather than my
+say-so.
 
 **Figures that aren't tables.** My COMPARED_AGAINST / EVALUATED_ON test says
 "main results *table*." But several of these papers put their main results in a
@@ -259,8 +266,8 @@ method is classified the way it is, not just its name.
 
 ## What I'd build next
 
-The thing I'd fix first is the lopsidedness of my APPLIES coverage. Of the 78
-APPLIES edges, LoRA has 55 — and **8 of my 13 methods have zero**: Prefix-Tuning,
+The thing I'd fix first is the lopsidedness of my APPLIES coverage. Of the 72
+APPLIES edges, LoRA has 50 — and **8 of my 13 methods have zero**: Prefix-Tuning,
 P-Tuning, P-Tuning v2, Compacter, Pfeiffer Adapters, AdaLoRA, VeRA, and (IA)³ are
 all in the graph as methods but no application paper in my corpus runs them. That
 happened because I expanded the candidate pool from citation/reference links off
@@ -278,7 +285,7 @@ multiplicative families. Broadening coverage per-method is what makes the tool
 answer evenly across the taxonomy instead of just where the citations happened to
 cluster.
 
-Two smaller things I'd clean up after that. The ~60 APPLIES papers are keyed by
+Two smaller things I'd clean up after that. The 55 APPLIES papers are keyed by
 Semantic Scholar hash ids where no arXiv id existed (many are from venues like
 VLDB, not arXiv), so a pass could recover true arXiv ids for the arXiv-sourced
 ones. And `combined_techniques` is built to be promoted back to a `Technique`

@@ -61,13 +61,13 @@ taxonomy is readable **without running any code**.
 | | Count |
 |---|---|
 | **Method** nodes (with `mechanism`, `family`, `is_family_root`, `signature_terms`) | 13 |
-| **Paper** nodes | 74 |
+| **Paper** nodes | 68 |
 | **Benchmark** nodes | 18 |
 | **INTRODUCES** (Paper→Method) | 13 |
 | **EXTENDS** (Method→Method) | 8 |
-| **COMPARED_AGAINST** (Method→Method, w/ `evidence_paper`) | 30 |
+| **COMPARED_AGAINST** (Method→Method, w/ `evidence_paper`) | 29 |
 | **EVALUATED_ON** (Method→Benchmark) | 34 |
-| **APPLIES** (Paper→Method) | 78 |
+| **APPLIES** (Paper→Method) | 72 |
 
 Six family roots: **Adapters, Prefix-Tuning, P-Tuning, LoRA, BitFit, (IA)³.**
 Everything else is a variant connected by an `EXTENDS` edge.
