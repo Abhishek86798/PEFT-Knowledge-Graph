@@ -65,23 +65,33 @@ def build_model(g: dict) -> dict:
 
     nodes, edges = [], []
 
-    # Method nodes (skeleton) with paper-count badge in the label.
+    # Method nodes (skeleton) — the visual anchors: large boxes with a two-line
+    # badge (name + paper count) so a reviewer spots LoRA/Adapters/etc. instantly.
     for slug, m in methods.items():
-        pid = intro.get(slug)
         n_papers = len(applies[slug])
+        # Real newline (not "\\n"): vis.js multi-line labels need an actual \n.
+        # Show the count only when > 0 so zero-application methods don't read as
+        # dead ends -- they still carry EXTENDS/EVALUATED_ON/COMPARED_AGAINST edges.
+        # Badge counts APPLIES papers specifically (papers that *run* the method),
+        # not all papers touching it -- shown only when > 0 so 0-application methods
+        # (which still have INTRODUCES/EXTENDS/EVALUATED_ON edges) look clean.
+        badge = f"\n\U0001F4C4 applied in {n_papers}" if n_papers else ""
         nodes.append({
             "id": slug, "kind": "method",
-            "label": f'{m["name"]}\\n({n_papers} papers)',
+            "label": f'{m["name"]}{badge}',
             "color": FAMILY_COLOR.get(m["family"], "#888"),
-            "shape": "box", "size": 26 if m["is_family_root"] else 20,
+            "shape": "box",
+            # Deliberately much larger than benchmarks/papers -> visual hierarchy.
+            "size": 40 if m["is_family_root"] else 34,
         })
 
-    # Benchmark nodes (always visible).
+    # Benchmark nodes (always visible) — medium grey circles, clearly a tier below
+    # methods.
     for slug, b in benches.items():
         nodes.append({
             "id": f"bench_{slug}", "kind": "benchmark",
             "label": b["name"], "color": BENCH_COLOR,
-            "shape": "ellipse", "size": 13,
+            "shape": "ellipse", "size": 16,
         })
 
     # Paper nodes (hidden until their method is clicked). One node per APPLIES paper.
@@ -125,6 +135,7 @@ def build_model(g: dict) -> dict:
             "benchmarks": sorted(set(evalon[slug])),
             "compared": sorted(set(compared[slug])),
             "paper_url": paper_url(pid),
+            "paper_title": (papers.get(pid, {}).get("title") or "") if pid else "",
         }
     # Paper fact sheets (title + link).
     pfacts = {}
@@ -167,8 +178,12 @@ _TEMPLATE = r"""<!doctype html>
            align-items:baseline; gap:16px; flex-wrap:wrap; }}
   header h1 {{ font-size:16px; margin:0; font-weight:650; }}
   header .sub {{ color:#8b93a0; font-size:12.5px; }}
-  .stats {{ display:flex; gap:14px; flex-wrap:wrap; margin-left:auto; }}
+  .stats {{ display:flex; gap:14px; flex-wrap:wrap; }}
   .stat {{ font-size:12px; color:#9aa3af; }} .stat b {{ color:#e6e9ee; font-size:14px; }}
+  #search {{ margin-left:auto; }}
+  #search input {{ background:#1c2128; border:1px solid #2f3841; color:#e6e9ee;
+     padding:7px 12px; border-radius:7px; font-size:13px; width:190px; outline:none; }}
+  #search input:focus {{ border-color:#5b6bd6; }}
   #toolbar {{ padding:8px 20px; display:flex; gap:14px; align-items:center;
              flex-wrap:wrap; border-bottom:1px solid #262b32; font-size:12.5px; }}
   #toolbar label {{ display:flex; gap:6px; align-items:center; cursor:pointer; }}
@@ -189,18 +204,27 @@ _TEMPLATE = r"""<!doctype html>
              padding:7px 12px; border-radius:6px; text-decoration:none; font-weight:600; }}
   #panel .empty {{ color:#6b7280; }}
   #panel .placeholder {{ color:#7c8593; margin-top:40px; text-align:center; }}
+  #panel .row {{ display:flex; align-items:baseline; gap:8px; margin:7px 0; }}
+  #panel .row .ico {{ width:18px; flex:0 0 18px; }}
+  #panel .row .rlab {{ color:#8b93a0; flex:1; }}
+  #panel .row .rval {{ color:#e6e9ee; font-weight:600; text-align:right; }}
+  #panel .ptitle {{ margin-top:8px; font-size:12px; color:#9aa3af; line-height:1.4; }}
+  #panel .note {{ margin-top:14px; padding:10px 12px; background:#1e232b;
+                 border:1px solid #2f3841; border-left:3px solid #c98a2b;
+                 border-radius:6px; font-size:11.5px; color:#aab2bd; line-height:1.45; }}
   .hint {{ position:absolute; bottom:10px; left:20px; font-size:12px; color:#7c8593; }}
 </style></head><body>
 <header>
   <h1>PEFT Knowledge Graph</h1>
   <span class="sub">click a method to reveal its papers &middot; click any node for details</span>
   <div class="stats" id="stats"></div>
+  <div id="search"><input id="searchbox" type="text" placeholder="Search methods…" autocomplete="off"></div>
 </header>
 <div id="toolbar">
   <strong style="color:#9aa3af;font-weight:600;">Edges:</strong>
-  <label><input type="checkbox" id="cb-extends" checked> EXTENDS</label>
-  <label><input type="checkbox" id="cb-eval" checked> EVALUATED_ON</label>
-  <label><input type="checkbox" id="cb-compared" checked> COMPARED_AGAINST</label>
+  <label><input type="checkbox" id="cb-extends" checked> <span style="color:#8e9aa6">━</span> EXTENDS</label>
+  <label><input type="checkbox" id="cb-eval" checked> <span style="color:#6fbfa5">━</span> EVALUATED_ON</label>
+  <label><input type="checkbox" id="cb-compared" checked> <span style="color:#e08a6b">┄</span> COMPARED_AGAINST</label>
   <div class="legend">
     <span><span class="swatch" style="background:#6c5ce7"></span>Adapter</span>
     <span><span class="swatch" style="background:#b0392a"></span>LoRA</span>
@@ -264,17 +288,32 @@ ensureVis(()=>{{
   function esc(s){{return (s||'').replace(/[&<>]/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;'}}[c]));}}
   function chips(arr){{ return arr.length? arr.map(x=>`<span class="chip">${{esc(x)}}</span>`).join('')
                         : '<span class="empty">none</span>'; }}
+  function row(icon,label,val){{
+    return `<div class="row"><span class="ico">${{icon}}</span>`+
+           `<span class="rlab">${{label}}</span><span class="rval">${{val}}</span></div>`;
+  }}
   function methodPanel(slug){{
     const f=FACTS[slug]; if(!f) return;
+    const bench = f.benchmarks.length? chips(f.benchmarks) : '<span class="empty">none</span>';
+    const comp  = f.compared.length?   chips(f.compared)   : '<span class="empty">none</span>';
     document.getElementById('panel').innerHTML =
      `<h2>${{esc(f.name)}}</h2>
-      <div class="fam">${{f.is_root?'family root · ':''}}${{esc(f.family)}} · introduced ${{f.introduced}}</div>
+      <div class="fam">${{f.is_root?'★ family root':'variant'}} · ${{esc(f.family)}}</div>
       <div class="mech">${{esc(f.mechanism)}}</div>
-      <div class="sec">Applies in</div>${{f.n_papers}} paper${{f.n_papers===1?'':'s'}}
-        ${{f.n_papers? ' &middot; <span style="color:#9aa3af">click the node to reveal them</span>':''}}
-      <div class="sec">Evaluated on</div>${{chips(f.benchmarks)}}
-      <div class="sec">Compared against</div>${{chips(f.compared)}}
-      ${{f.paper_url? `<div class="sec">Introducing paper</div><a href="${{f.paper_url}}" target="_blank">Open paper &rarr;</a>`:''}}`;
+      ${{row('📅','Introduced', f.introduced)}}
+      ${{row('📄','Applied in', f.n_papers? (f.n_papers+' papers <span style=\"color:#7c8593\">(click node to reveal)</span>')
+             : '<span style=\"color:#7c8593\">0 in this corpus — see note</span>')}}
+      ${{row('📚','Family', esc(f.family))}}
+      <div class="sec">📊 Benchmarks (evaluated on)</div>${{bench}}
+      <div class="sec">🔄 Compared against</div>${{comp}}
+      ${{f.n_papers===0? `<div class="note">No <b>application</b> papers for this method
+          in the corpus. The APPLIES pool was grown from citation links off
+          LoRA-heavy seeds, so LoRA dominates (50) and several methods have 0 — a
+          known coverage limitation (see approach.md). This method is still fully
+          present via its EXTENDS / EVALUATED_ON / COMPARED_AGAINST edges above.</div>`:''}}
+      ${{f.paper_url? `<div class="sec">Introducing paper</div>
+          <a href="${{f.paper_url}}" target="_blank">Open introducing paper &rarr;</a>
+          <div class="ptitle">${{esc(f.paper_title || f.name)}}</div>`:''}}`;
   }}
   function paperPanel(nid){{
     const f=PFACTS[nid]; if(!f) return;
@@ -283,7 +322,8 @@ ensureVis(()=>{{
       <div class="fam">${{esc(String(f.venue))}} ${{f.year?('· '+f.year):''}}</div>
       <div class="sec">Application paper</div>
       <span style="color:#9aa3af">runs a tracked method unmodified (APPLIES)</span>
-      ${{f.url? `<div class="sec">Source</div><a href="${{f.url}}" target="_blank">Open paper &rarr;</a>`:''}}`;
+      ${{f.url? `<div class="sec">Source</div><a href="${{f.url}}" target="_blank">Open paper &rarr;</a>
+          <div class="ptitle">${{esc(f.name)}}</div>`:''}}`;
   }}
 
   net.on('click', p=>{{
@@ -304,6 +344,20 @@ ensureVis(()=>{{
       allEdges.forEach(e=>{{ if(e.etype===etype) edges.update({{id:e.id, hidden:!ev.target.checked}}); }});
     }});
   }});
+
+  // Search: type a method name -> zoom, center, select, and open its panel.
+  const methodIndex = Object.entries(FACTS).map(([slug,f])=>({{slug, name:f.name.toLowerCase()}}));
+  function runSearch(q){{
+    q=q.trim().toLowerCase(); if(!q) return;
+    const hit = methodIndex.find(m=>m.name.startsWith(q)) || methodIndex.find(m=>m.name.includes(q));
+    if(!hit) return;
+    net.selectNodes([hit.slug]);
+    net.focus(hit.slug, {{scale:1.3, animation:{{duration:600, easingFunction:'easeInOutQuad'}}}});
+    methodPanel(hit.slug);
+  }}
+  const sb=document.getElementById('searchbox');
+  sb.addEventListener('keydown', e=>{{ if(e.key==='Enter') runSearch(sb.value); }});
+  sb.addEventListener('input', e=>{{ if(sb.value.length>=3) runSearch(sb.value); }});
 }});
 </script>
 </body></html>
