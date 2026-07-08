@@ -170,7 +170,7 @@ The taxonomy, the EXTENDS edges, and the 13 papers' COMPARED_AGAINST /
 EVALUATED_ON edges I verified by consulting the original papers — focusing on the
 method descriptions and primary evaluation tables — because those edges need more
 than an abstract to get right, and I didn't trust abstract-level tagging for them.
-The ~55 APPLIES papers were the other tier: tractable to tag from abstracts, so I
+The 72 APPLIES papers were the other tier: tractable to tag from abstracts, so I
 fetched a candidate pool and tagged at scale. That asymmetry — evidence-heavy
 edges checked against the papers, higher-volume edges tagged from abstracts — is
 something I planned for.
@@ -253,6 +253,24 @@ structural check — whether the idea reduces to an existing mechanism or sits
 outside every family. So the output is grounded in the graph's edges, not in the
 text of the query.
 
+**Why the output names a concrete differentiator, not just a flag.** An early
+version stopped at "verify it isn't AdaLoRA re-described" — true, but not
+*actionable*: it puts the whole burden back on the user. The graph already knows
+AdaLoRA's mechanism, so the tool can do better. It now contrasts the idea against
+the match at the level of the match's *own* diagnostic signature terms and reports
+the ones the idea never states — i.e. the exact mechanism axes (`adaptive`,
+`budget`, `singular`, `prune`) the idea must depart from to be more than that
+method under a new name. That is the difference between a system that *retrieves*
+the closest node and one that *reasons* about where a new idea sits relative to it:
+the differentiator is computed from graph-resident vocabulary, so it stays honest
+and can't drift from the taxonomy. The same output also places the idea
+structurally (which family, which roots, root-or-variant) using `is_family_root`
+and the EXTENDS DAG, and — when the idea names an *orthogonal* technique like
+quantization — surfaces the graph's precedent for that combination via
+`combined_techniques` (this is the payoff of demoting COMBINES to a property,
+[above](#the-edge-i-demoted-combined_techniques): the orthogonal axis is now a
+thing the reasoner can query, not a dangling entity).
+
 The one decision worth explaining here is that matching is **lexical, not
 neural** — weighted term overlap, no embeddings, no API. I chose that for
 determinism and zero dependencies, but it has a real failure mode: generic shared
@@ -274,29 +292,107 @@ method is classified the way it is, not just its name.
 
 ---
 
-## What I'd build next
+## Reasoning about the graph *itself*, not just about new inputs
 
-The thing I'd fix first is the lopsidedness of my APPLIES coverage. Of the 72
-APPLIES edges, LoRA has 50 — and **8 of my 13 methods have zero**: Prefix-Tuning,
-P-Tuning, P-Tuning v2, Compacter, Pfeiffer Adapters, AdaLoRA, VeRA, and (IA)³ are
-all in the graph as methods but no application paper in my corpus runs them. That
-happened because I expanded the candidate pool from citation/reference links off
-7 seeds, and those seeds were LoRA-heavy — so the "who uses this in practice"
-signal is real for LoRA and nearly empty for everything else. The graph currently
-over-tells the LoRA story.
+`suggest_method.py` answers "where does *this new idea* sit." But a knowledge graph
+should also be able to answer questions about *itself* that no single edge records —
+and that's the sharpest test of whether I built structure or just storage. So I added
+`graph_insights.py`, which derives structural tensions by *combining* edge types.
 
-The fix is targeted, not just "fetch more": seed the APPLIES expansion from *each*
-method rather than from a LoRA-dominated set, so a query like "who actually uses
-BitFit / (IA)³ in practice" returns something. That's more valuable than
-polishing the matcher, because the reasoning engine's "already tried in this
-direction" output is only as good as the APPLIES coverage behind it — right now it
-can answer that well for LoRA-family ideas and poorly for the soft-prompt or
-multiplicative families. Broadening coverage per-method is what makes the tool
-answer evenly across the taxonomy instead of just where the citations happened to
-cluster.
+The one I care about most is **ungrounded comparisons**. A `COMPARED_AGAINST` edge
+says "method X put method Y in its results table." An `EVALUATED_ON` edge says "X
+reports on benchmark B." Neither edge, alone, can tell you whether an X-vs-Y
+comparison is actually head-to-head. But *intersecting* them can: if X and Y have
+disjoint `EVALUATED_ON` sets, then X's "comparison" against Y is across different
+evaluation suites, not a common-ground number. The graph finds seven of these, and
+they converge on a real case — **(IA)³** benchmarks against six methods but shares a
+benchmark with *none* of them (it evaluates on RAFT / T0 held-out; the others don't).
+That is a genuine methodological caveat a researcher would want flagged before citing
+"(IA)³ beats LoRA," and I did not write it down anywhere — the graph *derived* it.
 
-Two smaller things I'd clean up after that. The 55 APPLIES papers are keyed by
-Semantic Scholar hash ids where no arXiv id existed (many are from venues like
+I deliberately kept this deterministic and stdlib-only, same as the rest: no LLM
+decides what counts as a tension, because the moment an LLM makes that call the
+finding stops being falsifiable against the graph. Each detector is a definition I
+can defend, and `test_graph_insights.py` pins the findings so they can't silently
+drift. I also *dropped* one detector I first wrote — "asymmetric comparison" (X→Y
+exists but Y→X doesn't) — because nearly every `COMPARED_AGAINST` edge is asymmetric
+by construction (newer methods benchmark against older ones), so it flagged 29 of 29
+edges and carried no signal. A tension detector that fires on everything isn't
+finding tension; I'd rather ship three that mean something than four where one is noise.
+
+---
+
+## Making auditability a query, not a grep
+
+`schema.md` and this document both lean hard on the claim "every edge is falsifiable."
+That claim is only as good as how easy it is to check. Before I built `explain_edge.py`,
+verifying an edge meant opening `graph.json`, finding the right array, cross-referencing
+`data/papers_applies_review.json` by paper id if it was an APPLIES edge, and reading the
+schema rule by hand. That's exactly the kind of manual digging the assignment's premise
+says a knowledge system should remove — I didn't want my own auditability story to
+require the same digging it's supposed to save someone from.
+
+So `explain_edge.py` answers "why does X --EDGE--> Y exist?" by knowing where each edge
+type's justification actually lives — a reduction-test `note` for `EXTENDS`, an
+`evidence_paper` plus results-table `note` for `COMPARED_AGAINST`, the review
+worksheet's `reason`/`confidence`/`evidence` triple for `APPLIES` — and returning it
+directly. It reuses the same index-and-lookup shape as `graph_insights.py`: load the
+graph once, build small dicts keyed by slug, answer the query from those dicts rather
+than re-scanning the edge lists per call.
+
+I want to be precise about what this tool is *not*: it surfaces no new facts and makes
+no new inferences. It's a lookup, not a reasoner — unlike `graph_insights.py`, which
+*derives* facts by combining edge types, this one just retrieves what's already
+recorded. I kept it that way on purpose. The moment an "explain" tool starts
+summarizing or paraphrasing a reason, it stops being an audit trail — a reviewer
+checking my work needs the literal recorded justification, not my gloss on it. That's
+also why the APPLIES path returns the reason string verbatim from the review worksheet
+rather than reformatting it, and the test suite asserts that verbatim match explicitly
+(`test_applies_reason_is_verbatim_from_review_worksheet`) rather than just checking the
+field is non-empty.
+
+---
+
+## The known limitation I chose to disclose rather than paper over
+
+My APPLIES coverage is lopsided. Of the 72 APPLIES edges, LoRA has 50 — and **8 of
+my 13 methods have zero**: Prefix-Tuning, P-Tuning, P-Tuning v2, Compacter, Pfeiffer
+Adapters, AdaLoRA, VeRA, and (IA)³ are all in the graph as methods but no application
+paper in my corpus runs them. That happened because I expanded the candidate pool
+from citation/reference links off 7 seeds, and those seeds were LoRA-heavy — so the
+"who uses this in practice" signal is real for LoRA and nearly empty for everything
+else. The graph currently over-tells the LoRA story.
+
+I decided how a system *handles* a known blind spot matters as much as the blind spot
+itself, so I did three things instead of quietly leaving an empty list:
+
+1. **Quantified it as a first-class output.** `graph_insights.py` reports APPLIES
+   coverage per method (LoRA 50 / 72, eight methods at zero) — the imbalance is a
+   number the graph will tell you, not something a reviewer has to discover.
+2. **Made the reasoning engine degrade gracefully.** When a query matches a
+   zero-coverage method, `suggest_method.py` says so explicitly — *"No APPLIES papers
+   for '(IA)³'; the 'who runs this in practice' signal is unavailable for this match
+   (a known coverage limitation), but the EXTENDS / COMPARED_AGAINST reasoning is
+   unaffected because those edges are curated from the papers, not abstract-tagged."*
+   An empty "(none)" reads like a bug; a stated limitation reads like a system that
+   knows its own boundaries. It also correctly reassures the user that the *curated*
+   half of the reasoning still holds — only the abstract-tagged signal is thin.
+3. **Kept the honest fix as future work** (below), rather than doing a rushed
+   abstract-tag expansion the night before submission that would scale up the one
+   tier of the graph I trust least.
+
+The fix, when I do it, is targeted rather than "fetch more": seed the APPLIES
+expansion from *each* method rather than from a LoRA-dominated set, so a query like
+"who actually uses BitFit / (IA)³ in practice" returns something. That's more
+valuable than polishing the matcher, because the "already tried in this direction"
+output is only as good as the APPLIES coverage behind it. But I'd hold every new edge
+to the same `reason`/`confidence`/`evidence` bar as the existing 200 — I would rather
+ship a graph that is honestly narrow and says so than one that is broad and quietly
+unverified. That trade-off is the whole thesis of the project, and I wasn't going to
+break it at the finish line to make a coverage number look better.
+
+Two smaller things I'd clean up after that. All 72 APPLIES papers are keyed by
+Semantic Scholar hash ids rather than arXiv ids (many are from venues like
 VLDB, not arXiv), so a pass could recover true arXiv ids for the arXiv-sourced
 ones. And `combined_techniques` is built to be promoted back to a `Technique`
 entity the moment the vocabulary outgrows its two current tags — that's the first

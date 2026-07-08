@@ -39,7 +39,7 @@ That's it. Three entity types. No `Model` (backbone architectures), no `Metric`,
 
 ---
 
-## 2. Method Taxonomy (the 2.1 decision)
+## 2. Method Taxonomy
 
 The classification rule used for every disputed case:
 
@@ -98,7 +98,7 @@ Deliberately scoped to the *introducing* paper only. If we admitted any paper's 
 ### 3.5 `APPLIES` — Paper → Method
 > **P APPLIES M iff P runs M's mechanism unmodified in its own experiments and reports at least one quantitative result produced with it.**
 
-This is the corpus-breadth edge: it gives the non-introducing papers — roughly 57 of them, whatever it takes to hit the 70 total Paper target (§4 validation) — a legitimate reason to exist in the graph: applications, third-party benchmarks, empirical surveys. It answers a question no other edge can — *who actually uses each method in practice*. Its boundaries are set by two words in the test:
+This is the corpus-breadth edge: it gives the non-introducing papers — 55 of them, whatever it takes to hit the 70 total Paper target (§4 validation) — a legitimate reason to exist in the graph: applications, third-party benchmarks, empirical surveys. It answers a question no other edge can — *who actually uses each method in practice*. Its boundaries are set by two words in the test:
 - **"unmodified"** — the disjointness clause. If P modifies M's mechanism, P fails APPLIES and its contribution is a candidate new Method, judged by the reduction test in §2. APPLIES and EXTENDS can therefore never describe the same relationship.
 - **"reports at least one quantitative result"** — the rigor clause, mirroring §3.3/§3.4. Citing M, discussing M, or surveying M without running it does not qualify; a narrative survey stays out (consistent with §5 item 4), while a survey that *re-benchmarks* methods enters.
 
@@ -146,9 +146,9 @@ validation:
 
 ---
 
-## 5. Explicitly NOT Modeled (the 2.4 decision)
+## 5. Explicitly NOT Modeled
 
-1. **Metric values.** `EVALUATED_ON` is boolean, not numeric. Scores depend on backbone, parameter budget, seed, and eval script; normalizing them across 70 papers is a multi-day rabbit hole that produces numbers nobody should compare anyway. The graph answers "was it evaluated there," not "what did it score."
+1. **Metric values.** `EVALUATED_ON` is boolean, not numeric. Scores depend on backbone, parameter budget, seed, and eval script; normalizing them across 68 papers is a multi-day rabbit hole that produces numbers nobody should compare anyway. The graph answers "was it evaluated there," not "what did it score."
 2. **Backbone models** (BERT, T5, GPT-3, LLaMA) as entities. Every method touches many backbones; the edges would be dense and low-signal. Backbone *is* consulted transiently during edge construction — §3.3's same-backbone condition is a filter applied while deciding whether to draw a COMPARED_AGAINST edge — but it is discarded afterward, not stored. The test depends on data read from the paper at tagging time, not on data the graph retains.
 3. **Authors.** Deliberately excluded, not overlooked: author nodes answer sociology-of-science questions (who collaborates with whom), not mechanism questions (what extends what), and this graph is scoped to the latter. Author overlap is also explicitly barred from influencing family assignment (see Assumptions).
 4. **Third-party numbers as *evaluation evidence*.** Non-introducing papers enter the graph via APPLIES (§3.5), but only introducing papers generate EVALUATED_ON and COMPARED_AGAINST edges. Surveys and third-party benchmarks re-report numbers under inconsistent setups; letting them mint comparison/evaluation edges would make edge provenance untraceable. So: a third-party paper can *exist* and *apply* methods, but cannot testify about how methods rank against each other.
