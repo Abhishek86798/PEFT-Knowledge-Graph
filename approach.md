@@ -243,6 +243,16 @@ backward along EXTENDS to the family root (`Adapters → Compacter → your idea
 what's already been tried in that direction (EXTENDS children, siblings, the
 match's baselines), and a novelty flag.
 
+**The lexical match is only the entry point; the reasoning is graph traversal.**
+Once a query lands on its closest method node, the system stops matching text and
+starts walking the graph: it traverses EXTENDS *backward* to build the reading
+order (root → … → match → your idea), and pulls the matched method's
+COMPARED_AGAINST neighbours out of the graph to report what has already been tried
+in that direction. The novelty verdict combines the lexical signal with a
+structural check — whether the idea reduces to an existing mechanism or sits
+outside every family. So the output is grounded in the graph's edges, not in the
+text of the query.
+
 The one decision worth explaining here is that matching is **lexical, not
 neural** — weighted term overlap, no embeddings, no API. I chose that for
 determinism and zero dependencies, but it has a real failure mode: generic shared
