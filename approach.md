@@ -253,6 +253,11 @@ structural check — whether the idea reduces to an existing mechanism or sits
 outside every family. So the output is grounded in the graph's edges, not in the
 text of the query.
 
+Retrieval establishes a candidate entry point into the graph. Structural
+reasoning only begins once a valid entry point exists. If retrieval produces no
+evidence (zero score and zero diagnostic mechanism matches), the system returns
+`NO_MATCH` rather than fabricating a structural explanation.
+
 **Why the output names a concrete differentiator, not just a flag.** An early
 version stopped at "verify it isn't AdaLoRA re-described" — true, but not
 *actionable*: it puts the whole burden back on the user. The graph already knows
@@ -289,6 +294,79 @@ Method node, not hardcoded in the script, so the taxonomy is fully inspectable
 without running code and there's one source of truth. That was a late change,
 after I realized a reviewer opening the JSON should be able to see *why* each
 method is classified the way it is, not just its name.
+
+---
+
+## Two reasoning bugs an adversarial review found, and how I fixed them
+
+I asked for an adversarial pass on this project before submission, specifically
+someone trying to reject it rather than confirm it. Both bugs it found were real,
+and both were exactly the kind a friendly read-through misses: the code ran
+without error and produced output that *looked* reasoned in both cases. That's a
+sharper failure mode than a crash, so I want to be explicit about what was wrong
+and why the fix is structural, not cosmetic.
+
+**Bug 1 — `family_placement` reported every root in a family, not the roots the
+match actually descends from.** The soft-prompt family has two roots
+(Prefix-Tuning and P-Tuning — see the taxonomy fork above). Before the fix,
+`family_placement` computed `family_roots` by filtering *all* methods sharing the
+match's family label and `is_family_root`. For a match like Prompt-Tuning — which
+`EXTENDS` Prefix-Tuning only — that meant `family_roots` listed **both**
+Prefix-Tuning and P-Tuning, even though P-Tuning has no edge to Prompt-Tuning at
+all. Worse: the *same JSON response*'s `suggested_reading_order` (built correctly
+from the actual `EXTENDS` walk) showed only `Prefix-Tuning -> Prompt-Tuning`,
+so the tool was asserting two different ancestries for the same match inside one
+structured answer. A consumer reading `family_roots` and `suggested_reading_order`
+side by side would see a direct contradiction.
+
+The fix was to stop computing `family_roots` from the family *label* and compute
+it from the same ancestry walk that already builds the reading order. I pulled
+that walk out of `reading_order` into a shared `method_ancestry(slug, gr)`
+function — it walks `EXTENDS` parents back to root(s), exactly as before — and
+now both `reading_order` and `family_placement` call it. `family_roots` is the
+subset of that ancestry where `is_family_root` is true. This isn't just "get the
+right answer for Prompt-Tuning" — it's structural: the two outputs are now
+*computed from the same walk*, so they cannot disagree again by construction.
+For a genuinely multi-parent match like P-Tuning v2 (which really does `EXTENDS`
+both P-Tuning and Prefix-Tuning), the fix correctly reports both roots, because
+the ancestry walk correctly reaches both — the fix removes the false generality
+(every root in the family) without removing the true generality (a match can
+have more than one real ancestor).
+
+**Bug 2 — there was no rejection path for zero-signal input.** I fed the matcher
+pure gibberish ("xyzzy quux plugh" — no PEFT content, no real English signal at
+all). Every method in `MECHANISMS` scored 0.0 against it, tied. `match()`
+correctly returns *a* top-scoring method in that case (Python's sort is stable,
+so it was whichever method happens to be first in dict iteration order — currently
+Adapters, but that's an implementation accident, not a decision). The bug is that
+nothing downstream checked for this: the code walked straight into mechanism
+contrast, family placement, the `EXTENDS` reading order, and a novelty verdict —
+all built on top of a "match" that shared not one diagnostic or prose token with
+the query. The output *looked* exactly as confident and structured as a real
+positioning, with no field anywhere signaling that retrieval had actually found
+nothing.
+
+I didn't want to touch scoring or retrieval to fix this — the matcher's job is to
+score every candidate, including the degenerate all-zero case, and it does that
+correctly. The bug was entirely in what happens *after* retrieval: reasoning
+should not proceed on evidence that doesn't exist. So the fix is a guard in
+`analyze()`, checked immediately after `match()` runs and before any graph
+traversal: if the top match has `score == 0` **and** `signature_hits == 0`, the
+function returns early with `status: "NO_MATCH"` — a message explaining that
+retrieval found no signal (not a novelty verdict), the same `closest_matches`
+list for reference, and nothing else. No `family_placement`, no
+`suggested_reading_order`, no `novelty` — because none of those would mean
+anything computed from zero evidence. `format_human` renders this as its own
+short block instead of the six-section report.
+
+The threshold is deliberately narrow — both signals have to be exactly zero. The
+Lie-group example earlier in this document (`score=0.133`, `sig=0`) must **not**
+trip this guard: it has real, if generic, lexical signal, and the existing novelty
+guard already handles it correctly (`APPEARS_DISTINCT`, not a duplicate). `NO_MATCH`
+is a stronger, rarer claim than "this looks novel" — it's "the matcher has nothing
+to reason from," and conflating the two would blunt the novelty guard I already
+built and defended above. Tests pin both boundaries: real-but-weak signal still
+gets positioned, and only true zero-zero returns `NO_MATCH`.
 
 ---
 

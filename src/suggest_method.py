@@ -266,15 +266,22 @@ def match(query: str, gr: Graph, top_k: int = 3) -> list[dict]:
 
 
 # --------------------------------------------------------------------------- #
-# 2. Reading order (walk EXTENDS backward: root -> ... -> match)
+# 2. Ancestry (walk EXTENDS backward: match -> ... -> root(s))
 # --------------------------------------------------------------------------- #
 
 
-def reading_order(slug: str, gr: Graph) -> list[str]:
-    """Walk EXTENDS parents back to a root, returning root-first name order.
+def method_ancestry(slug: str, gr: Graph) -> list[str]:
+    """Walk EXTENDS parents back to their root(s), returning root-first slug order.
+
+    This is the single source of truth for "what roots does this match actually
+    reduce to" -- both the reading order and the family-placement roots must be
+    built from this same walk, or they can report different, contradictory
+    ancestries for the same match (a multi-root family like soft-prompt has two
+    roots overall, but any one match reduces to at most one of them via EXTENDS
+    unless it has multiple parents, like P-Tuning v2).
 
     Multiple parents (P-Tuning v2) are all included; the path is de-duplicated
-    while preserving a root-first reading direction.
+    while preserving a root-first order. Includes `slug` itself.
     """
     order: list[str] = []
     seen: set[str] = set()
@@ -288,7 +295,12 @@ def reading_order(slug: str, gr: Graph) -> list[str]:
         order.append(s)  # appended after parents -> parents come first
 
     visit(slug)
-    return [gr.name_of[s] for s in order]
+    return order
+
+
+def reading_order(slug: str, gr: Graph) -> list[str]:
+    """Root-first reading order (names) for the matched method's ancestry."""
+    return [gr.name_of[s] for s in method_ancestry(slug, gr)]
 
 
 # --------------------------------------------------------------------------- #
@@ -370,16 +382,20 @@ def mechanism_contrast(query_tokens: set[str], slug: str) -> dict:
 
 
 def family_placement(slug: str, gr: Graph) -> dict:
-    """Report the family the idea lands in and its root, using the EXTENDS DAG.
+    """Report the family the idea lands in and its ACTUAL root(s), using the same
+    EXTENDS ancestry walk as reading_order (method_ancestry) -- not every root that
+    happens to share the family label.
 
-    This is the structural half of the novelty judgment: an idea that lands on a
-    variant sits inside an established family (its mechanism reduces to the root
-    under the schema's reduction test); an idea that lands on a root is either
-    that root or a candidate new root beside it.
+    A family can have more than one root (soft-prompt has both Prefix-Tuning and
+    P-Tuning), but a given match only reduces to the root(s) reachable by walking
+    ITS OWN EXTENDS parents -- e.g. Prompt-Tuning EXTENDS Prefix-Tuning only, so its
+    family_roots must be ['Prefix-Tuning'], not every soft-prompt root. Reusing
+    method_ancestry guarantees family_roots and the reading order can never
+    disagree about which root(s) the match descends from.
     """
     family = gr.family_of.get(slug, "")
-    roots = [gr.name_of[s] for s in gr.methods
-             if gr.family_of.get(s) == family and gr.is_root.get(s)]
+    ancestry = method_ancestry(slug, gr)
+    roots = [gr.name_of[s] for s in ancestry if gr.is_root.get(s)]
     return {
         "family": family,
         "family_roots": sorted(roots),
@@ -503,10 +519,37 @@ def analyze(query: str, gr: Graph, top_k: int = 3) -> dict:
     qt = _token_set(query)
     matches = match(query, gr, top_k=top_k)
     top = matches[0]
+
+    # NO_MATCH guard: retrieval found no meaningful evidence at all -- the top
+    # match has zero signature hits AND a zero score, meaning not one query
+    # token overlapped with that method's mechanism prose or diagnostic
+    # vocabulary. Continuing past this point would walk the EXTENDS graph and
+    # render a confident-looking structured answer (family placement, reading
+    # order, novelty verdict) anchored to a match that is actually an artifact
+    # of iteration order, not evidence -- exactly the failure mode this guard
+    # exists to stop. This check runs on the SAME `matches` retrieval already
+    # computed; scoring and retrieval are unchanged, only what happens next.
+    if top["score"] == 0 and top["signature_hits"] == 0:
+        return {
+            "query": query,
+            "status": "NO_MATCH",
+            "closest_matches": matches,
+            "message": (
+                "No tracked method shares any diagnostic or mechanism vocabulary "
+                "with this description -- retrieval found zero signal, not a weak "
+                "match. The idea cannot be positioned in the current taxonomy from "
+                "this description alone. This is not a novelty verdict: it means "
+                "the description doesn't give the matcher enough to work with "
+                "(too short, off-topic, or describing something outside PEFT "
+                "entirely). Add a one-sentence statement of which parameters are "
+                "trained and how they are injected, then try again."),
+        }
+
     contrast = mechanism_contrast(qt, top["slug"])
     placement = family_placement(top["slug"], gr)
     return {
         "query": query,
+        "status": "POSITIONED",
         "closest_matches": matches,
         "mechanism_contrast": contrast,
         "family_placement": placement,
@@ -524,6 +567,15 @@ def format_human(result: dict) -> str:
     lines.append("PEFT IDEA POSITIONING")
     lines.append("=" * 68)
     lines.append(f'Query: "{q[:200]}"')
+
+    if result["status"] == "NO_MATCH":
+        lines.append("\n[NO_MATCH]")
+        lines.append(f"   {result['message']}")
+        lines.append("\n   (closest lexical candidates, for reference only -- none matched):")
+        for i, m in enumerate(result["closest_matches"], 1):
+            lines.append(f"   {i}. {m['name']:<18} score={m['score']:<5} sig={m['signature_hits']}")
+        lines.append("=" * 68)
+        return "\n".join(lines)
 
     lines.append("\n1. CLOSEST TRACKED METHODS")
     for i, m in enumerate(result["closest_matches"], 1):

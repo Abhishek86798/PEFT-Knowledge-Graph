@@ -8,6 +8,7 @@ venv/
 run.log
 run2.log
 *.log
+idea.txt
 
 # --- personal working notes (manual-review worksheets, not deliverables) ---
 # Kept locally as proof-of-review; not shipped raw because they contain

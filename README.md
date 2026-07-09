@@ -17,7 +17,7 @@ already been tried in that direction, and whether it looks novel.
 | | |
 |---|---|
 | 🖱️ **Explore it** | Open [`graph.html`](graph.html) in any browser — a self-contained interactive graph (no install, works offline). Click a method to reveal its papers + a fact panel; click any node to open the real paper. |
-| ⚡ **Reason over it** | `python src/suggest_method.py "your PEFT idea"` — positions a *new* idea against the graph (see [worked example](#the-reasoning-engine-new-input--structured-output) below). |
+| ⚡ **Reason over it** | `python src/suggest_method.py "<describe your PEFT idea>"` — positions a *new* idea against the graph (see [worked example](#the-reasoning-engine-new-input--structured-output) below; pasting the placeholder literally returns `NO_MATCH` — that's correct, not a bug, see [that example](#the-reasoning-engine-new-input--structured-output)). |
 | 🔎 **Let it reason about itself** | `python src/graph_insights.py` — surfaces structural tensions *derived* from the edges (comparisons on disjoint benchmarks, uncontested frontier methods). See [Graph self-analysis](#graph-self-analysis--the-graph-reasoning-about-itself). |
 | ❓ **Ask why an edge exists** | `python src/explain_edge.py --from AdaLoRA --to LoRA --edge EXTENDS` — pulls the falsifiable test/evidence behind any single edge. See [Explain this edge](#explain-this-edge--auditability-as-a-query-not-a-grep). |
 | 📖 **Understand the design** | [`approach.md`](approach.md) — the decision narrative (read this first). [`schema.md`](schema.md) — the normative schema. |
@@ -109,6 +109,35 @@ see [Disclosed limitation](#the-knowledge-graph--graphjson) below.
 adapters on a 4-bit quantized base" — additionally surfaces the graph's precedent for that
 combination (QLoRA carries `combined_techniques: [quantization]`), so the tool reasons over
 the schema's orthogonal-axis decision, not only the mechanism taxonomy.
+
+**Example — retrieval finds nothing at all:**
+
+```bash
+python src/suggest_method.py "xyzzy quux plugh"
+```
+```
+====================================================================
+PEFT IDEA POSITIONING
+====================================================================
+Query: "xyzzy quux plugh"
+
+[NO_MATCH]
+   No tracked method shares any diagnostic or mechanism vocabulary with this description -- retrieval found zero signal, not a weak match. The idea cannot be positioned in the current taxonomy from this description alone. This is not a novelty verdict: it means the description doesn't give the matcher enough to work with (too short, off-topic, or describing something outside PEFT entirely). Add a one-sentence statement of which parameters are trained and how they are injected, then try again.
+
+   (closest lexical candidates, for reference only -- none matched):
+   1. Adapters           score=0.0   sig=0
+   2. Pfeiffer Adapters  score=0.0   sig=0
+   3. Compacter          score=0.0   sig=0
+====================================================================
+```
+When the top match scores **exactly zero on both signal channels** (`score == 0` and
+`signature_hits == 0` — no query token overlapped with that method's mechanism prose
+or diagnostic vocabulary at all), the tool stops *before* graph traversal and returns
+`NO_MATCH` instead of a confident-looking answer anchored to an arbitrary tied-score
+method. This is deliberately narrower than the novelty guard above: the Lie-group
+example still gets full reasoning (`score=0.133`, real if generic signal) — `NO_MATCH`
+only fires when there is *no* signal to reason from, which is the one case where
+continuing would manufacture a structured answer with nothing behind it.
 
 Output as `--json` for machine use, `--file idea.txt` or stdin for piping. Full CLI
 in [Quickstart](#quickstart).
@@ -330,7 +359,7 @@ library only**; only the corpus fetcher needs `requests`.
 python src/validate_graph.py
 
 # run the tests (reasoning engine + graph self-analysis + edge explainer; stdlib
-# unittest, no network) — 34 tests total, one command:
+# unittest, no network) — 40 tests total, one command:
 python -m unittest discover -s tests -v
 
 # or run any test file individually:
@@ -348,10 +377,12 @@ python src/explain_edge.py --list-edges LoRA
 # reason over a new PEFT idea (formatted sections)
 python src/suggest_method.py "train only the bias terms, add no new parameters"
 
-# machine-readable output, or read the idea from a file / stdin
-python src/suggest_method.py --json "your idea"
+# machine-readable output, or read the idea from a file / stdin (same example
+# idea as above, so this is runnable as-is -- swap the text for your own idea)
+python src/suggest_method.py --json "train only the bias terms, add no new parameters"
+echo "train only the bias terms, add no new parameters" > idea.txt
 python src/suggest_method.py --file idea.txt
-echo "your idea" | python src/suggest_method.py
+echo "train only the bias terms, add no new parameters" | python src/suggest_method.py
 ```
 
 > On Windows, use `py` instead of `python`.
@@ -378,7 +409,7 @@ echo "your idea" | python src/suggest_method.py
 │   ├── fetch_papers.py               # corpus fetcher (Semantic Scholar batch endpoint)
 │   ├── tag_applies.py                # builds/merges the APPLIES review worksheet
 │   └── vendor/vis-network.min.js     # inlined into graph.html so it works offline
-├── tests/                            # 34 tests, stdlib unittest, no network
+├── tests/                            # 40 tests, stdlib unittest, no network
 │   ├── test_suggest_method.py        # reasoning-engine tests (new-input behaviour)
 │   ├── test_graph_insights.py        # graph self-analysis tests (findings are falsifiable)
 │   └── test_explain_edge.py          # edge-explainer tests (every edge type + error paths)
